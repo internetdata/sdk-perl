@@ -22,7 +22,7 @@ sub family {
         name => 'Bogon IP',
         summary => 'IP ranges that cannot legitimately appear on the internet.',
         standing => 'licensed',
-        redistribution => 'internal',
+        license_type => 'standard',
         starts => '2026-09-04T07:49:45.118Z',
         expires => undef,
         versions => [{

@@ -86,11 +86,11 @@ subtest 'a 4xx is never retried and a 5xx is' => sub {
 subtest 'a listing survives every standing, right and format the API publishes' => sub {
     my @families;
     for my $standing (@{ $corpus->{standings} }) {
-        for my $right (@{ $corpus->{redistribution} }) {
+        for my $right (@{ $corpus->{license_type} }) {
             push @families, InternetDataTest::family(
                 base => "${standing}_${right}",
                 standing => $standing,
-                redistribution => $standing eq 'unlicensed' ? undef : $right,
+                license_type => $standing eq 'unlicensed' ? undef : $right,
                 versions => [{
                     id => "${standing}_${right}_v1", version => 1, summary => 'x',
                     formats => $corpus->{formats},
@@ -110,11 +110,11 @@ subtest 'a listing survives every standing, right and format the API publishes' 
         is_deeply($db->{versions}[0]{formats}, $corpus->{formats},
             "$db->{base}: the formats it is built in survived");
     }
-    # An unlicensed family has no licence, so it has no redistribution right;
+    # An unlicensed family has no licence, so it has no license_type right;
     # inventing one would tell a caller they may redistribute something they do
     # not hold.
     my ($unlicensed) = grep { $_->{standing} eq 'unlicensed' } @$databases;
-    is($unlicensed->{redistribution}, undef, 'an unlicensed family carries no right');
+    is($unlicensed->{license_type}, undef, 'an unlicensed family carries no right');
 };
 
 # The visibility contract, as the corpus states it: a family built for a single
@@ -130,7 +130,7 @@ my %VISIBILITY = (
     'listing-is-returned-as-served' => sub {
         my @served = (
             InternetDataTest::family(base => 'one'),
-            InternetDataTest::family(base => 'two', standing => 'unlicensed', redistribution => undef),
+            InternetDataTest::family(base => 'two', standing => 'unlicensed', license_type => undef),
         );
         serve({ body => { databases => \@served } });
 

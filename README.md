@@ -40,7 +40,7 @@ Every call lives under `$client->database`. The downloads are the whole of this 
 my ($bogon) = grep { $_->{base} eq 'bogon_ip' } @{ $client->database->list };
 
 print $bogon->{standing};             # licensed, expired or unlicensed
-print $bogon->{redistribution};       # evaluation, internal or redistribute
+print $bogon->{license_type};       # evaluation, internal or redistribute
 my $id = $bogon->{versions}[-1]{id};  # bogon_ip_v1, and this is what you download
 ```
 

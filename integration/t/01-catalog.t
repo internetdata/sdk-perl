@@ -5,7 +5,7 @@ use lib 't/lib';
 
 use Test::More;
 use InternetDataIntegration::Staging qw(
-    FORMATS REDISTRIBUTION STANDINGS catalog client licensed skip_reason unlicensed
+    FORMATS LICENSE_TYPE STANDINGS catalog client licensed skip_reason unlicensed
 );
 
 # The published distribution against the staging API: a real catalog, a real
@@ -28,9 +28,9 @@ subtest 'the catalog reads as the published schema describes it' => sub {
         ok(!exists $db->{id}, "$db->{base} is keyed by base rather than by a database id");
         ok(scalar(grep { $_ eq ($db->{standing} || '') } @{ +STANDINGS }),
             "$db->{base}: standing is one the schema documents");
-        ok(!defined $db->{redistribution}
-            || scalar(grep { $_ eq $db->{redistribution} } @{ +REDISTRIBUTION }),
-            "$db->{base}: redistribution is documented or absent");
+        ok(!defined $db->{license_type}
+            || scalar(grep { $_ eq $db->{license_type} } @{ +LICENSE_TYPE }),
+            "$db->{base}: license_type is documented or absent");
         ok(ref $db->{versions} eq 'ARRAY' && @{ $db->{versions} },
             "$db->{base}: a family with no versions");
         for my $version (@{ $db->{versions} || [] }) {
@@ -54,7 +54,7 @@ subtest 'this organization holds at least one live licence' => sub {
 
     ok(@$live, 'the CI credential licenses nothing, so nothing can be downloaded') or return;
     for my $db (@$live) {
-        ok(defined $db->{redistribution}, "$db->{base}: a live licence with no redistribution term");
+        ok(defined $db->{license_type}, "$db->{base}: a live licence with no license_type term");
     }
     note('licensed: ' . join(', ', map { $_->{base} } @$live));
 };

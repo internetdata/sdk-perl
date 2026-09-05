@@ -274,7 +274,7 @@ version of itself:
         name => 'Bogon IP',
         summary => 'IP ranges that cannot legitimately appear on the internet.',
         standing => 'licensed',          # licensed, expired or unlicensed
-        redistribution => 'internal',    # evaluation, internal, redistribute or undef
+        license_type => 'standard',    # evaluation, internal, redistribute or undef
         starts => '2026-09-04T07:49:45.118Z',
         expires => undef,                # undef when the licence has no end date
         versions => [
