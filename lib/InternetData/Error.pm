@@ -120,7 +120,7 @@ InternetData::Error - why a request failed
 
 =head1 SYNOPSIS
 
-    my $databases = eval { $client->list };
+    my $databases = eval { $client->database->list };
     if (my $err = $@) {
         die $err unless ref $err && $err->isa('InternetData::Error');
         warn $err->kind, ': ', $err->message;

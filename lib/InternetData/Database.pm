@@ -263,7 +263,7 @@ takes a per-call C<retries> option. Failures die with an L<InternetData::Error>.
 
 =head2 list
 
-    my $databases = $client->list;
+    my $databases = $client->database->list;
 
 An array reference of the database B<families> this organization may see. A
 licence is held against a family, and each family carries every published
