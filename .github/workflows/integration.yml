@@ -1,0 +1,32 @@
+name: Integration
+
+# Exercises the distribution as PUBLISHED on CPAN, against staging. CI covers
+# this working tree; nothing there would notice a MANIFEST that ships no lib/, a
+# prerequisite a consumer cannot resolve, or a tag that never landed.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+  schedule:
+    # Off the hour on purpose: scheduled runs bunched at :00 are queued behind
+    # everyone else's and can be dropped entirely under load.
+    - cron: '29 6 * * *'
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: '5.40'
+      # No dependency cache: the point is the install a stranger gets. The runner
+      # skips with a reason when nothing published satisfies the floor in
+      # cpanfile, and the suite skips from inside Test::More when the key is
+      # absent - a secret that does not exist interpolates to an empty string
+      # here, which both treat as absent.
+      - run: perl scripts/run.pl
+        working-directory: integration
+        env:
+          INTERNETDATA_STAGING_KEY: ${{ secrets.INTERNETDATA_STAGING_KEY }}

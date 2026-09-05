@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: '5.40'
+      - run: cpanm --notest --quiet --installdeps .
+      # The tag only TRIGGERS this; PAUSE indexes whatever the tarball says.
+      # Without this check, tagging v1.0.1 against a 1.0.0 module uploads 1.0.0
+      # again, which PAUSE accepts and then refuses to index.
+      - name: Tag must match $InternetData::VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(perl -Ilib -MInternetData -e 'print $InternetData::VERSION')"
+          if [ "$tag" != "$version" ] ; then
+            echo "tag $tag does not match InternetData::VERSION $version" >&2
+            exit 1
+          fi
+      - run: perl Makefile.PL
+      - run: make
+      - run: prove -Ilib -Iblib/lib -r t
+      # MANIFEST is generated from MANIFEST.SKIP rather than committed, so the
+      # reviewable artifact is the exclusion list.
+      - run: make manifest
+      - run: make dist
+      - name: Upload to PAUSE
+        env:
+          PAUSE_USER: ${{ secrets.PAUSE_USER }}
+          PAUSE_PASSWORD: ${{ secrets.PAUSE_PASSWORD }}
+        run: |
+          cpanm --notest --quiet CPAN::Uploader
+          cpan-upload --user "$PAUSE_USER" --password "$PAUSE_PASSWORD" InternetData-*.tar.gz

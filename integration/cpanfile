@@ -1,0 +1,15 @@
+# The integration suite's own dependencies.
+#
+# InternetData is required by VERSION and resolved from CPAN like any other
+# distribution: the whole point of this suite is the artifact a stranger installs,
+# so scripts/run.pl refuses the run if it resolves anywhere else. This file is
+# the single source of the floor that run.pl checks against what is published.
+requires 'InternetData', '1.0.0';
+
+# Used directly by the suite, to fetch a presigned link with no credential and to
+# watch what the client puts on the wire.
+requires 'Mojolicious', '9.00';
+
+on test => sub {
+    requires 'Test::More', '0.98';
+};

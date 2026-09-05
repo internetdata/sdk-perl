@@ -1,0 +1,27 @@
+# What `make manifest` must leave OUT of the released tarball. MANIFEST itself is
+# generated from this, so this file is the reviewable one.
+
+^\.git/
+^\.github/
+^\.gitignore$
+^scripts/
+# The integration suite installs this distribution FROM CPAN and tests that, so
+# shipping it inside the distribution would be circular as well as useless.
+^integration/
+# The pinned spec is the wire contract for this repo, not something a consumer
+# needs at runtime; it is 700 lines of YAML.
+^spec/
+
+# Build output.
+^blib/
+^Makefile$
+^Makefile\.old$
+^pm_to_blib$
+^MYMETA\.
+^InternetData-
+^local/
+^\.cpanm/
+
+\.bak$
+\.tmp$
+~$

@@ -1,0 +1,4 @@
+# Installed fresh on every run, so the daily one keeps testing whatever is newest
+# on CPAN.
+/local/
+/.cpanm/

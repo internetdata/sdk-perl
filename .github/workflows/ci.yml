@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 5.22 is the floor, and the whole suite has been RUN on it: the
+        # official perl docker images below 5.22 use a manifest format current
+        # docker refuses to pull, so scripts/test.sh cannot reach them locally
+        # and neither can this matrix.
+        #
+        # NOT 5.16, even though Mojolicious declares `perl 5.016`: its
+        # dependency chain does not actually install there. cpanm exits 0
+        # having installed nothing, and Makefile.PL only WARNS about the
+        # missing prereq, so the build proceeds and dies three steps later on
+        # `Can't locate Mojo/IOLoop.pm`. A declared floor is not a tested one.
+        perl: ['5.22', '5.26', '5.32', '5.36', '5.40', '5.42']
+    name: perl ${{ matrix.perl }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+      - run: cpanm --notest --quiet --installdeps .
+      # cpanm can exit 0 having installed nothing, and Makefile.PL only warns
+      # about a missing prereq, so without this the job fails at `prove` with a
+      # message that looks like a code fault rather than a resolution one.
+      - run: perl -MMojolicious -e 'print "Mojolicious $Mojolicious::VERSION\n"'
+      - run: perl Makefile.PL
+      - run: make
+      - run: prove -Ilib -Iblib/lib -r t
