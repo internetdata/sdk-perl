@@ -23,11 +23,6 @@ sub new {
     my ($class, %args) = @_;
     my @unknown = sort grep { !$OPTIONS{$_} } keys %args;
     Carp::croak("InternetData->new: unknown option(s): @unknown") if @unknown;
-    # Required rather than optional: every endpoint here is licensed, so there
-    # is no anonymous tier to fall back to and a keyless client could only ever
-    # collect 401s.
-    Carp::croak('InternetData->new: an api_key is required')
-        if !defined $args{api_key} || !length $args{api_key};
 
     my $retries = defined $args{retries} ? $args{retries} : 2;
     Carp::croak('InternetData->new: retries cannot be negative') if $retries < 0;
@@ -182,11 +177,16 @@ sub _get_p {
 
 sub _headers {
     my ($self) = @_;
+    my %headers = (Accept => 'application/json');
     # One scheme. The v1 endpoints on this same host take `?apikey=` with a
     # different key vocabulary, so sending a v2 key that way would make it look
     # plausible on the version it does not belong to, and query strings end up in
-    # logs.
-    return { Accept => 'application/json', Authorization => "Bearer $self->{api_key}" };
+    # logs. An empty key counts as none at all: that is what an unset
+    # `${{ secrets.X }}` interpolates to, and `Bearer ` is a worse answer than no
+    # header.
+    $headers{Authorization} = "Bearer $self->{api_key}"
+        if defined $self->{api_key} && length $self->{api_key};
+    return \%headers;
 }
 
 sub _url {
@@ -256,8 +256,10 @@ Downloads InternetData's licensed IP and network databases, and reads what the
 API publishes about them: the catalog, per-database metadata, checksums, and
 your organization's recent download attempts.
 
-Every endpoint needs a key carrying the C<db.download> scope, which is why
-L</new> requires one: there is no anonymous tier to fall back to.
+Every endpoint published today needs a key carrying the C<db.download> scope.
+L</new> takes one as an option rather than requiring it: a client built without
+a key sends no C<Authorization> header at all, which is what a database served
+without a licence would need.
 
 =head1 METHODS
 
@@ -273,9 +275,10 @@ C<retries> option. Failures die with an L<InternetData::Error>.
 
 =item api_key
 
-Required. A console-issued key carrying the C<db.download> scope. Keys are
-default-deny, so an existing key does not reach these endpoints until the scope
-is added to it.
+A console-issued key carrying the C<db.download> scope. Keys are default-deny,
+so an existing key does not reach these endpoints until the scope is added to
+it. Optional: omit it, or pass an empty string, and no C<Authorization> header
+is sent. Every endpoint published today answers C<401> without one.
 
 =item base_url
 

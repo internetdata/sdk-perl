@@ -12,17 +12,6 @@ use InternetDataTest::Origin;
 # The Perl-specific surface, as distinct from the shared corpus in
 # t/01-conformance.t.
 
-subtest 'a key is required, because every endpoint here is licensed' => sub {
-    # There is no anonymous tier to fall back to, so a keyless client could only
-    # ever collect 401s. Refusing at construction says so at the point the
-    # mistake was made.
-    eval { InternetData->new };
-    like($@, qr/api_key is required/, 'no key at all is refused');
-    eval { InternetData->new(api_key => '') };
-    like($@, qr/api_key is required/, 'and neither is an empty one');
-    ok(InternetData->new(api_key => 'k'), 'a key is all it takes');
-};
-
 subtest 'the API key reaches the wire, and only one way' => sub {
     my $origin = InternetDataTest::Origin->new(sub {
         shift->render(json => { databases => [] });
@@ -37,6 +26,25 @@ subtest 'the API key reaches the wire, and only one way' => sub {
     # version it does not belong to, and query strings end up in logs.
     is_deeply($request->{query}, {}, 'never as a query parameter');
     ok(!exists $request->{headers}{'X-Api-Key'}, 'nor under a second header');
+};
+
+subtest 'a keyless client builds and sends no credential at all' => sub {
+    # Today every endpoint is licensed, so a keyless client only ever gets a
+    # 401. It still has to BUILD, because a database offered without a licence
+    # would need exactly this client - and an empty key is what an unset
+    # `${{ secrets.X }}` interpolates to, where `Bearer ` is worse than nothing.
+    my $origin = InternetDataTest::Origin->new(sub {
+        shift->render(json => { databases => [] });
+    });
+
+    for my $args ([], [api_key => undef], [api_key => '']) {
+        $origin->reset;
+        ok(InternetData->new(base_url => $origin->url, @$args)->database->list,
+            'the client built and called');
+        my ($request) = $origin->requests;
+        ok(!exists $request->{headers}{Authorization}, 'no empty Authorization without a key');
+        is_deeply($request->{query}, {}, 'and no apikey query parameter');
+    }
 };
 
 subtest 'responses are unwrapped at the right depth' => sub {

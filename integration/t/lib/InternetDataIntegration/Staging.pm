@@ -137,6 +137,12 @@ sub catalog {
     # it and prints `Dubious, test returned 255`, which says nothing about what
     # refused.
     BAIL_OUT("listing the staging catalog: $@") unless $databases;
+    # Checked HERE rather than in one test, so no comparison in either file can
+    # be made against a run that silently went unauthenticated. An unsent key is
+    # a 401 today, which would fail loudly on its own; this is what keeps the
+    # guarantee once the API answers anything without one.
+    BAIL_OUT('the key never reached the wire, so nothing below ran authenticated')
+        unless grep { $_->{carried_key} } @FACTS;
     return $CATALOG = $databases;
 }
 

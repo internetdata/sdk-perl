@@ -18,7 +18,7 @@ Requires Perl 5.22 or newer. [Mojolicious](https://metacpan.org/dist/Mojolicious
 
 ## Usage
 
-Every endpoint is licensed, so a key is required rather than optional: there is no anonymous tier to fall back to. Create one in the console and give it the `db.download` scope.
+Every endpoint published today is licensed, so you need a key with the `db.download` scope; create one in the console. `api_key` is nevertheless an OPTION rather than a requirement: a client built without one sends no `Authorization` header at all, ready for a database served without a licence.
 
 ```perl
 use InternetData;
