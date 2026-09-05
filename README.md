@@ -1,4 +1,4 @@
-# [<img src="https://s3.internetdata.io/internetdata-public/brand/mark.svg" alt="InternetData" width="24"/>](https://internetdata.io/) InternetData Perl Client Library
+# [<img src="https://s3.internetdata.io/internetdata-public/brand/mark.svg" alt="InternetData" height="28"/>](https://internetdata.io/) InternetData Perl Client Library
 
 [![CPAN](https://img.shields.io/cpan/v/InternetData.svg)](https://metacpan.org/dist/InternetData)
 [![CI](https://github.com/internetdata/sdk-perl/actions/workflows/ci.yml/badge.svg)](https://github.com/internetdata/sdk-perl/actions/workflows/ci.yml)
