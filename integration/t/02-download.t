@@ -28,7 +28,7 @@ sub transferable {
     my @out;
     for my $db (@{ licensed(catalog()) }) {
         for my $version (@{ $db->{versions} }) {
-            my $meta = eval { client()->metadata($version->{id}) };
+            my $meta = eval { client()->database->metadata($version->{id}) };
             BAIL_OUT("reading metadata for $version->{id}: $@") unless $meta;
             for my $format (@{ $version->{formats} }) {
                 my $size = $meta->{size}{$format};
@@ -52,11 +52,11 @@ subtest 'a download matches the size and the digest the API published' => sub {
         my ($id, $format, $size) = @{$item}{qw(id format size)};
         my $path = $tmp->dirname . "/$id.$format";
 
-        my $written = eval { client()->download($id, $format, $path) };
+        my $written = eval { client()->database->download($id, $format, $path) };
         BAIL_OUT("downloading $id.$format: $@") unless defined $written;
         # Read AFTER the transfer, so a rebuild between the two calls shows up as
         # a digest mismatch rather than passing against the digest of nothing.
-        my $published = eval { client()->checksums($id, $format) };
+        my $published = eval { client()->database->checksums($id, $format) };
         BAIL_OUT("reading the checksums for $id.$format: $@") unless $published;
 
         is($written, $size, "$id.$format: bytes written match the published size");
@@ -72,7 +72,7 @@ subtest 'a download matches the size and the digest the API published' => sub {
         my $body = do { local $/; <$fh> };
         is(Digest::SHA::sha256_hex($body), $published->{sha256},
             "$id.$format: the bytes on disk are the published file");
-        is(client()->download_bytes($id, $format), $body,
+        is(client()->database->download_bytes($id, $format), $body,
             "$id.$format: download_bytes agrees with the streamed copy");
         note("$id.$format: $written bytes");
     }
@@ -82,7 +82,7 @@ subtest 'download_url is a credential-free link on object storage' => sub {
     my ($item) = @TRANSFERABLE;
     my ($id, $format, $size) = @{$item}{qw(id format size)};
 
-    my $url = eval { client()->download_url($id, $format) };
+    my $url = eval { client()->database->download_url($id, $format) };
     BAIL_OUT("asking for a link to $id.$format: $@") unless $url;
 
     like($url, qr{\Ahttps://}, 'the link is https');

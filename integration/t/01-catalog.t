@@ -62,7 +62,7 @@ subtest 'this organization holds at least one live licence' => sub {
 subtest 'metadata publishes a size for every format a version is built in' => sub {
     for my $db (@{ licensed(catalog()) }) {
         for my $version (@{ $db->{versions} }) {
-            my $meta = eval { client()->metadata($version->{id}) };
+            my $meta = eval { client()->database->metadata($version->{id}) };
             BAIL_OUT("reading metadata for $version->{id}: $@") unless $meta;
 
             is($meta->{id}, $version->{id}, "$version->{id}: answered about the id asked for");
@@ -90,7 +90,7 @@ subtest 'a database this organization does not license is refused without a retr
     my $version = $others->[0]{versions}[-1];
     # Retries would only slow a refusal down: it is a client error either way,
     # and this asserts the library agrees rather than hammering a 403.
-    my $meta = eval { client(retries => 3)->metadata($version->{id}) };
+    my $meta = eval { client(retries => 3)->database->metadata($version->{id}) };
     my $error = $@;
 
     ok(!defined $meta, "$version->{id} is not licensed to this organization")
@@ -107,7 +107,7 @@ subtest 'a database this organization does not license is refused without a retr
 };
 
 subtest 'the download history lists what this run has done' => sub {
-    my $attempts = eval { client()->downloads(limit => 10) };
+    my $attempts = eval { client()->database->downloads(limit => 10) };
     BAIL_OUT("reading the download history: $@") unless $attempts;
 
     is(ref $attempts, 'ARRAY', 'the history is a list');

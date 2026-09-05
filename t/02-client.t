@@ -28,7 +28,7 @@ subtest 'the API key reaches the wire, and only one way' => sub {
         shift->render(json => { databases => [] });
     });
 
-    InternetData->new(base_url => $origin->url, api_key => 'secret-key')->list;
+    InternetData->new(base_url => $origin->url, api_key => 'secret-key')->database->list;
 
     my ($request) = $origin->requests;
     is($request->{headers}{Authorization}, 'Bearer secret-key', 'sent as a bearer token');
@@ -58,22 +58,22 @@ subtest 'responses are unwrapped at the right depth' => sub {
 
     # `checksums` returns the WHOLE digest set. Reading a top-level sha256
     # shipped broken in another SDK: it returned undef against a healthy API.
-    my $sums = $client->checksums('bogon_ip_v1', 'csvgz');
+    my $sums = $client->database->checksums('bogon_ip_v1', 'csvgz');
     is_deeply($sums, $bodies{'/api/v2/database/checksum'}{checksums}, 'the whole digest set');
     is($sums->{sha256}, 's256', 'the digest a caller actually wants is there');
 
     # v2 answers `databases`, where vpndetection's v1 answered `datasets`. One
     # letter of difference between two brands' feeds is exactly the sort of thing
     # a hand-written client gets wrong once and never notices.
-    my $databases = $client->list;
+    my $databases = $client->database->list;
     is_deeply($databases, [$family], 'list unwraps databases');
     is($databases->[0]{base}, 'bogon_ip', 'a family is keyed by base, not by a database id');
     is($databases->[0]{versions}[0]{id}, 'bogon_ip_v1', 'and the id to download hangs off versions');
 
-    is_deeply($client->downloads, [{ dataset_id => 'bogon_ip_v1' }], 'downloads unwraps downloads');
+    is_deeply($client->database->downloads, [{ dataset_id => 'bogon_ip_v1' }], 'downloads unwraps downloads');
     # metadata is the whole document rather than a member of it: it carries the
     # per-format size a caller budgets a transfer against.
-    my $meta = $client->metadata('bogon_ip_v1');
+    my $meta = $client->database->metadata('bogon_ip_v1');
     is($meta->{entries}, 42, 'metadata is the whole document');
     is($meta->{size}{csvgz}, 760, 'including the size that budgets a transfer');
 };
@@ -91,11 +91,11 @@ subtest 'the query a call makes says what it asked for' => sub {
     });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k');
 
-    $client->checksums('bogon_asn_v1', 'csvgz');
-    $client->metadata('bogon_asn_v1');
-    $client->downloads(limit => 5);
-    $client->downloads;
-    $client->list;
+    $client->database->checksums('bogon_asn_v1', 'csvgz');
+    $client->database->metadata('bogon_asn_v1');
+    $client->database->downloads(limit => 5);
+    $client->database->downloads;
+    $client->database->list;
 
     my @requests = $origin->requests;
     is_deeply($requests[0]{query}, { id => 'bogon_asn_v1', format => 'csvgz' }, 'checksums');
@@ -113,12 +113,12 @@ subtest 'retries are configurable per call' => sub {
     });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k', retries => 0);
 
-    eval { $client->list(retries => 2) };
+    eval { $client->database->list(retries => 2) };
     isa_ok($@, 'InternetData::Error', 'still failed');
     is($origin->count, 3, 'one attempt plus two retries, not the client default of none');
 
     $origin->reset;
-    eval { $client->list };
+    eval { $client->database->list };
     is($origin->count, 1, 'the client default still applies without an override');
 };
 
@@ -135,13 +135,13 @@ subtest 'a 429 is retried only when it carries Retry-After' => sub {
     });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k', retries => 2);
 
-    my $meta = $client->metadata('retryable');
+    my $meta = $client->database->metadata('retryable');
     is($meta->{id}, 'ok', 'a rate limit was waited out');
     is($origin->count, 2, 'exactly one retry');
 
     $attempts = 0;
     $origin->reset;
-    my $spent = eval { $client->metadata('spent') };
+    my $spent = eval { $client->database->metadata('spent') };
     ok(!defined $spent, 'a spent quota fails');
     is($@->kind, 'quota_exceeded', 'and is classified as such');
     is($origin->count, 1, 'a 429 without Retry-After is never retried');
@@ -164,7 +164,7 @@ subtest 'a Retry-After wait does not block the event loop' => sub {
     # tick is the difference made visible.
     my $ticks = 0;
     my $ticker = Mojo::IOLoop->recurring(0.05 => sub { $ticks++ });
-    my $databases = $client->list;
+    my $databases = $client->database->list;
     Mojo::IOLoop->remove($ticker);
 
     is_deeply($databases, [], 'the retry succeeded');
@@ -188,7 +188,7 @@ subtest 'the download redirect is never followed' => sub {
     });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k', timeout => 3);
 
-    my $url = $client->download_url('bogon_ip_v1', 'mmdb');
+    my $url = $client->database->download_url('bogon_ip_v1', 'mmdb');
     is($url, $origin->url . '/huge', 'the Location is the answer');
     is(scalar(grep { $_ eq '/huge' } $origin->paths), 0, 'the file itself was never requested');
     is($origin->count, 1, 'exactly one request was made');
@@ -213,7 +213,7 @@ subtest 'the redirect is not chased even when the environment says otherwise' =>
     my $ua = Mojo::UserAgent->new;
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k', ua => $ua);
 
-    is($client->download_url('bogon_ip_v1', 'csvgz'), $origin->url . '/file',
+    is($client->database->download_url('bogon_ip_v1', 'csvgz'), $origin->url . '/file',
         'the client still answers with the link');
     is($ua->max_redirects, 0, 'because it sets max_redirects on the agent it was given');
     is($origin->count, 1, 'and the file was never fetched');
@@ -225,7 +225,7 @@ subtest 'a 200 where a redirect belongs names the cause' => sub {
     });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k');
 
-    my $url = eval { $client->download_url('bogon_ip_v1', 'csvgz') };
+    my $url = eval { $client->database->download_url('bogon_ip_v1', 'csvgz') };
 
     ok(!defined $url, 'a success where a 302 was expected is a failure');
     like($@->message, qr/must not follow redirects/, 'and says what would cause it');
@@ -235,7 +235,7 @@ subtest 'a redirect with no Location is reported rather than returned empty' => 
     my $origin = InternetDataTest::Origin->new(sub { shift->rendered(302) });
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k');
 
-    my $url = eval { $client->download_url('bogon_ip_v1', 'csvgz') };
+    my $url = eval { $client->database->download_url('bogon_ip_v1', 'csvgz') };
 
     ok(!defined $url, 'there is nothing to hand back');
     like($@->message, qr/without a Location header/, 'and the message says so');
@@ -246,9 +246,9 @@ subtest 'an unknown option is refused rather than ignored' => sub {
 
     eval { InternetData->new(api_key => 'k', timout => 5) };
     like($@, qr/unknown option/, 'a typo in a constructor option croaks');
-    eval { $client->list(retires => 2) };
+    eval { $client->database->list(retires => 2) };
     like($@, qr/unknown option/, 'and so does one in a per-call option');
-    eval { $client->metadata('bogon_ip_v1', retires => 2) };
+    eval { $client->database->metadata('bogon_ip_v1', retires => 2) };
     like($@, qr/unknown option/, 'on every call, not just the first');
     eval { InternetData->new(api_key => 'k', retries => -1) };
     like($@, qr/retries cannot be negative/, 'and a value that cannot work is refused too');
@@ -257,11 +257,11 @@ subtest 'an unknown option is refused rather than ignored' => sub {
 subtest 'a call refuses arguments it cannot use' => sub {
     my $client = InternetData->new(api_key => 'k');
 
-    eval { $client->metadata('') };
+    eval { $client->database->metadata('') };
     like($@, qr/expected a database id/, 'metadata needs an id');
-    eval { $client->checksums('bogon_ip_v1') };
+    eval { $client->database->checksums('bogon_ip_v1') };
     like($@, qr/expected a format/, 'checksums needs a format');
-    eval { $client->download_url(undef, 'csvgz') };
+    eval { $client->database->download_url(undef, 'csvgz') };
     like($@, qr/expected a database id/, 'download_url needs an id');
 };
 
@@ -272,7 +272,7 @@ subtest 'the non-blocking API works where the blocking one cannot' => sub {
     my $client = InternetData->new(base_url => $origin->url, api_key => 'k');
 
     my $seen;
-    $client->list_p->then(sub { $seen = shift })->wait;
+    $client->database->list_p->then(sub { $seen = shift })->wait;
     is($seen->[0]{base}, 'bogon_ip', 'list_p resolves with the catalog');
 
     # Mojo::Promise::wait is a no-op inside an already running loop, so a
@@ -282,7 +282,7 @@ subtest 'the non-blocking API works where the blocking one cannot' => sub {
     $origin->reset;
     my $croaked;
     Mojo::IOLoop->next_tick(sub {
-        eval { $client->list };
+        eval { $client->database->list };
         $croaked = $@;
         Mojo::IOLoop->stop;
     });
@@ -299,7 +299,7 @@ subtest 'a transport failure is a retryable network error' => sub {
         base_url => 'http://127.0.0.1:1', api_key => 'k', retries => 0, timeout => 5,
     );
 
-    my $databases = eval { $client->list };
+    my $databases = eval { $client->database->list };
 
     ok(!defined $databases, 'the call failed');
     isa_ok($@, 'InternetData::Error', 'with');

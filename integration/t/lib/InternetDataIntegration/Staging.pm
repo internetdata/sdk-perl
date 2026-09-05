@@ -132,7 +132,7 @@ my $CATALOG;
 
 sub catalog {
     return $CATALOG if $CATALOG;
-    my $databases = eval { client()->list };
+    my $databases = eval { client()->database->list };
     # Reported rather than thrown: a fixture that dies takes the whole file with
     # it and prints `Dubious, test returned 255`, which says nothing about what
     # refused.

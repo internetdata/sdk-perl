@@ -5,6 +5,7 @@ use Test::More;
 
 my @modules = qw(
     InternetData
+    InternetData::Database
     InternetData::Error
 );
 

@@ -25,17 +25,19 @@ use InternetData;
 
 my $client = InternetData->new(api_key => $ENV{INTERNETDATA_API_KEY});
 
-for my $db (@{ $client->list }) {
+for my $db (@{ $client->database->list }) {
     print "$db->{base} $db->{standing}\n";
 }
 ```
+
+Every call lives under `$client->database`. The downloads are the whole of this API today, but the sibling VPNDetection client spells the same seven calls the same way, so a program holding both does not have to remember which one is flat.
 
 ### The catalog
 
 `list` returns the database *families* your organization may see. A licence is held against a family, and the id you download is the one hanging off its `versions`:
 
 ```perl
-my ($bogon) = grep { $_->{base} eq 'bogon_ip' } @{ $client->list };
+my ($bogon) = grep { $_->{base} eq 'bogon_ip' } @{ $client->database->list };
 
 print $bogon->{standing};             # licensed, expired or unlicensed
 print $bogon->{redistribution};       # evaluation, internal or redistribute
@@ -51,7 +53,7 @@ Databases commissioned for a single customer are different: they are **absent en
 `metadata` describes one database without transferring it - row count, build date, per-format schema, sample rows and exact sizes - so you can decide whether today's build is worth fetching and budget a transfer before starting it:
 
 ```perl
-my $meta = $client->metadata($id);
+my $meta = $client->database->metadata($id);
 
 print $meta->{updated};          # 2026-09-04
 print $meta->{entries};          # rows in this build
@@ -63,9 +65,9 @@ print $meta->{size}{csvgz};      # bytes
 There are three ways to fetch one file: straight to disk, as bytes, or as a link you transfer yourself.
 
 ```perl
-my $written = $client->download($id, 'csvgz', "./$id.csv.gz");
-my $bytes = $client->download_bytes($id, 'csvgz');
-my $url = $client->download_url($id, 'csvgz');
+my $written = $client->database->download($id, 'csvgz', "./$id.csv.gz");
+my $bytes = $client->database->download_bytes($id, 'csvgz');
+my $url = $client->database->download_url($id, 'csvgz');
 ```
 
 `download` holds nothing but a single chunk in memory whatever the database weighs. It writes to a neighbouring `.part` file and renames it on completion, and a transfer that stops short of the length the origin declared is an error rather than a short file, so a path that exists is a whole database and a failed refresh cannot destroy the copy already there.
@@ -83,7 +85,7 @@ The per-request timeout that bounds an API call is lifted for a transfer, and a 
 ```perl
 use Digest::SHA ();
 
-my $sums = $client->checksums($id, 'csvgz');
+my $sums = $client->database->checksums($id, 'csvgz');
 print $sums->{sha256};
 ```
 
@@ -92,7 +94,7 @@ print $sums->{sha256};
 `downloads` is your organization's recent attempts, newest first, refusals included: a denial is what answers "it stopped working", and its absence answers nothing. Without a limit the API applies its own default of 50, and it is clamped to 200.
 
 ```perl
-for my $attempt (@{ $client->downloads(limit => 20) }) {
+for my $attempt (@{ $client->database->downloads(limit => 20) }) {
     print "$attempt->{created} $attempt->{dataset_id} $attempt->{outcome}\n";
 }
 ```
@@ -102,7 +104,7 @@ for my $attempt (@{ $client->downloads(limit => 20) }) {
 Failures die with an `InternetData::Error` carrying a `kind` and a `retryable` flag. It stringifies to its message, so it reads like an ordinary string exception where you do not care which it is:
 
 ```perl
-my $databases = eval { $client->list };
+my $databases = eval { $client->database->list };
 if (my $err = $@) {
     die $err unless ref $err && $err->isa('InternetData::Error');
     warn $err->kind, ' ', $err->status, ' ', $err->retryable, ' ', $err->message;
@@ -117,7 +119,7 @@ Retries and how many of them are per call as well as per client:
 
 ```perl
 my $client = InternetData->new(api_key => $key, retries => 4, timeout => 60);
-my $databases = $client->list(retries => 0);
+my $databases = $client->database->list(retries => 0);
 ```
 
 ### Non-blocking use
@@ -125,7 +127,7 @@ my $databases = $client->list(retries => 0);
 Every call has a `_p` twin returning a [Mojo::Promise](https://metacpan.org/pod/Mojo::Promise), so the library drops into a Mojolicious application without a worker or a thread:
 
 ```perl
-$client->download_p($id, 'csvgz', "./$id.csv.gz")
+$client->database->download_p($id, 'csvgz', "./$id.csv.gz")
     ->then(sub { print 'wrote ', shift, " bytes\n" })
     ->catch(sub { warn shift })
     ->wait;

@@ -38,8 +38,8 @@ subtest 'every refusal in the corpus maps the same way here as everywhere else' 
         # their own responses, so a fix applied to one and not the other is
         # exactly the drift this corpus exists to catch.
         for my $call (
-            ['list', sub { $_[0]->list }],
-            ['download_url', sub { $_[0]->download_url('bogon_ip_v1', 'csvgz') }],
+            ['list', sub { $_[0]->database->list }],
+            ['download_url', sub { $_[0]->database->download_url('bogon_ip_v1', 'csvgz') }],
         ) {
             my ($name, $run) = @$call;
             serve($case);
@@ -77,7 +77,7 @@ subtest 'a 4xx is never retried and a 5xx is' => sub {
         $route->{headers} = { 'retry-after' => 0 } if $case->{expect}{retryable}
             && defined $case->{expect}{retryAfterSeconds};
 
-        eval { client(retries => 2)->list };
+        eval { client(retries => 2)->database->list };
         my $want = $case->{expect}{retryable} ? 3 : 1;
         is($origin->count, $want, "$case->{name}: $want attempt(s)");
     }
@@ -100,7 +100,7 @@ subtest 'a listing survives every standing, right and format the API publishes' 
     }
     serve({ body => { databases => \@families } });
 
-    my $databases = client()->list;
+    my $databases = client()->database->list;
 
     is_deeply($databases, \@families, 'the catalog arrives exactly as served');
     is(scalar @$databases, scalar @families, 'nothing was dropped');
@@ -134,14 +134,14 @@ my %VISIBILITY = (
         );
         serve({ body => { databases => \@served } });
 
-        my $databases = client()->list;
+        my $databases = client()->database->list;
 
         is_deeply($databases, \@served, 'the listing arrives exactly as served');
         is(scalar @$databases, scalar @served, 'nothing added and nothing dropped');
 
         # An empty listing is an answer, not a prompt to fill one in.
         serve({ body => { databases => [] } });
-        is_deeply(client()->list, [], 'and an empty catalog stays empty');
+        is_deeply(client()->database->list, [], 'and an empty catalog stays empty');
     },
 
     'no-catalog-is-compiled-into-the-client' => sub {
@@ -173,16 +173,16 @@ my %VISIBILITY = (
 
         # Two keys can be on different licences and entitled to see different
         # families, so a listing held from one is not an answer for the other.
-        client(api_key => 'key-a')->list;
-        client(api_key => 'key-b')->list;
+        client(api_key => 'key-a')->database->list;
+        client(api_key => 'key-b')->database->list;
         is($origin->count, 2, 'each client asked the server for itself');
 
         # And a second call on ONE client asks again: a catalog held across a
         # licence change is the same disclosure with a slower fuse.
         $origin->reset;
         my $one = client(api_key => 'key-a');
-        $one->list;
-        $one->list;
+        $one->database->list;
+        $one->database->list;
         is($origin->count, 2, 'nothing is cached, so a listing is never stale');
     },
 );

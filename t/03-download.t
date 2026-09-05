@@ -50,7 +50,7 @@ subtest 'a database is streamed to a path and lands whole' => sub {
     my ($dir, $path) = temp_path();
     my $client = client_for($origin);
 
-    my $written = $client->download('bogon_ip_v1', 'csvgz', $path);
+    my $written = $client->database->download('bogon_ip_v1', 'csvgz', $path);
 
     is($written, length $DATABASE, 'the byte count is reported');
     is(-s $path, length $DATABASE, 'and the file on disk is that long');
@@ -66,7 +66,7 @@ subtest 'the presigned request carries no credential and no encoding preference'
     my $origin = origin_for(\&whole_database);
     my ($dir, $path) = temp_path();
 
-    client_for($origin)->download('bogon_ip_v1', 'csvgz', $path);
+    client_for($origin)->database->download('bogon_ip_v1', 'csvgz', $path);
 
     my ($api, $storage) = $origin->requests;
     is($api->{headers}{Authorization}, 'Bearer secret-key', 'the API call is authenticated');
@@ -98,7 +98,7 @@ subtest 'a caller-supplied agent does not smuggle the key onto the link' => sub 
     my $origin = origin_for(\&whole_database);
     my ($dir, $path) = temp_path();
 
-    client_for($origin, ua => $ua)->download('bogon_ip_v1', 'csvgz', $path);
+    client_for($origin, ua => $ua)->database->download('bogon_ip_v1', 'csvgz', $path);
 
     my (undef, $storage) = $origin->requests;
     ok(!exists $storage->{headers}{Authorization}, 'the transfer is still credential-free');
@@ -110,8 +110,8 @@ subtest 'the bytes variant agrees with the streamed copy' => sub {
     my ($dir, $path) = temp_path();
     my $client = client_for($origin);
 
-    my $streamed = $client->download('bogon_ip_v1', 'csvgz', $path);
-    my $bytes = $client->download_bytes('bogon_ip_v1', 'csvgz');
+    my $streamed = $client->database->download('bogon_ip_v1', 'csvgz', $path);
+    my $bytes = $client->database->download_bytes('bogon_ip_v1', 'csvgz');
 
     is(length $bytes, $streamed, 'the same length');
     open my $fh, '<', $path or die $!;
@@ -133,7 +133,7 @@ subtest 'a truncated transfer fails loudly and leaves nothing behind' => sub {
     });
     my ($dir, $path) = temp_path();
 
-    my $written = eval { client_for($origin, timeout => 5)->download('bogon_ip_v1', 'csvgz', $path) };
+    my $written = eval { client_for($origin, timeout => 5)->database->download('bogon_ip_v1', 'csvgz', $path) };
 
     ok(!defined $written, 'the transfer did not report success');
     isa_ok($@, 'InternetData::Error', 'it failed with');
@@ -150,9 +150,9 @@ subtest 'a database the organization does not license is refused once' => sub {
     my ($dir, $path) = temp_path();
 
     for my $call (
-        ['download', sub { $client->download('vpn_ip_v1', 'csvgz', $path) }],
-        ['download_bytes', sub { $client->download_bytes('vpn_ip_v1', 'csvgz') }],
-        ['download_url', sub { $client->download_url('vpn_ip_v1', 'csvgz') }],
+        ['download', sub { $client->database->download('vpn_ip_v1', 'csvgz', $path) }],
+        ['download_bytes', sub { $client->database->download_bytes('vpn_ip_v1', 'csvgz') }],
+        ['download_url', sub { $client->database->download_url('vpn_ip_v1', 'csvgz') }],
     ) {
         my ($name, $run) = @$call;
         $origin->reset;
@@ -177,7 +177,7 @@ subtest 'object storage refusing the link is reported as such' => sub {
     });
     my ($dir, $path) = temp_path();
 
-    my $written = eval { client_for($origin)->download('bogon_ip_v1', 'csvgz', $path) };
+    my $written = eval { client_for($origin)->database->download('bogon_ip_v1', 'csvgz', $path) };
 
     ok(!defined $written, 'the transfer failed');
     like($@->message, qr/object storage refused the download link with status 403/,
@@ -198,7 +198,7 @@ subtest 'no response size cap applies to a transfer' => sub {
     my $origin = origin_for(\&whole_database);
     my ($dir, $path) = temp_path();
 
-    my $written = client_for($origin)->download('bogon_ip_v1', 'csvgz', $path);
+    my $written = client_for($origin)->database->download('bogon_ip_v1', 'csvgz', $path);
 
     is($written, length $DATABASE, 'a file four times the cap still arrived');
     is(-s $path, length $DATABASE, 'and reached the disk');
@@ -226,7 +226,7 @@ subtest 'a transfer outlives the per-request timeout that bounds an API call' =>
     # whatever bound suits a metadata call.
     my $client = client_for($origin, timeout => 1);
 
-    my $written = $client->download('bogon_ip_v1', 'csvgz', $path);
+    my $written = $client->database->download('bogon_ip_v1', 'csvgz', $path);
 
     is($written, $megabytes * 1024 * 1024, "all ${megabytes} MiB arrived");
     is(-s $path, $megabytes * 1024 * 1024, 'and reached the disk');
@@ -237,7 +237,7 @@ subtest 'the per-request timeout is restored after a transfer' => sub {
     my ($dir, $path) = temp_path();
     my $ua = Mojo::UserAgent->new;
 
-    client_for($origin, timeout => 7, ua => $ua)->download('bogon_ip_v1', 'csvgz', $path);
+    client_for($origin, timeout => 7, ua => $ua)->database->download('bogon_ip_v1', 'csvgz', $path);
 
     is($ua->request_timeout, 7, 'the agent is left as the caller configured it');
 };
@@ -246,7 +246,7 @@ subtest 'an unwritable destination costs no request' => sub {
     my $origin = origin_for(\&whole_database);
     my $client = client_for($origin);
 
-    eval { $client->download('bogon_ip_v1', 'csvgz', '/nonexistent-directory/bogon_ip_v1.csv.gz') };
+    eval { $client->database->download('bogon_ip_v1', 'csvgz', '/nonexistent-directory/bogon_ip_v1.csv.gz') };
 
     like($@, qr/cannot open/, 'the destination is refused up front');
     is($origin->count, 0, 'so no quota was spent finding out');
@@ -258,9 +258,9 @@ subtest 'the promise forms transfer too' => sub {
     my $client = client_for($origin);
 
     my ($written, $bytes, $url);
-    $client->download_p('bogon_ip_v1', 'csvgz', $path)
-        ->then(sub { $written = shift; $client->download_bytes_p('bogon_ip_v1', 'csvgz') })
-        ->then(sub { $bytes = shift; $client->download_url_p('bogon_ip_v1', 'csvgz') })
+    $client->database->download_p('bogon_ip_v1', 'csvgz', $path)
+        ->then(sub { $written = shift; $client->database->download_bytes_p('bogon_ip_v1', 'csvgz') })
+        ->then(sub { $bytes = shift; $client->database->download_url_p('bogon_ip_v1', 'csvgz') })
         ->then(sub { $url = shift })
         ->wait;
 
@@ -272,13 +272,13 @@ subtest 'the promise forms transfer too' => sub {
 subtest 'a transfer refuses arguments it cannot use' => sub {
     my $client = InternetData->new(api_key => 'k');
 
-    eval { $client->download('bogon_ip_v1', 'csvgz') };
+    eval { $client->database->download('bogon_ip_v1', 'csvgz') };
     like($@, qr/expected a destination path/, 'download needs somewhere to write');
-    eval { $client->download('', 'csvgz', '/tmp/x') };
+    eval { $client->database->download('', 'csvgz', '/tmp/x') };
     like($@, qr/expected a database id/, 'and a database id');
-    eval { $client->download_bytes('bogon_ip_v1') };
+    eval { $client->database->download_bytes('bogon_ip_v1') };
     like($@, qr/expected a format/, 'download_bytes needs a format');
-    eval { $client->download_bytes('bogon_ip_v1', 'csvgz', retres => 1) };
+    eval { $client->database->download_bytes('bogon_ip_v1', 'csvgz', retres => 1) };
     like($@, qr/unknown option/, 'and refuses a typo rather than ignoring it');
 };
 
