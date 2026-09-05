@@ -37,7 +37,7 @@ use constant SIZE_CEILING => 8 * 1024 * 1024;
 # than as an exact catalog: a database added tomorrow is not an SDK bug.
 use constant FORMATS => [qw(csvgz mmdb)];
 use constant STANDINGS => [qw(licensed expired unlicensed)];
-use constant LICENSE_TYPE => [qw(evaluation internal redistribute)];
+use constant LICENSE_TYPE => [qw(evaluation standard redistribute)];
 use constant DIGESTS => [qw(md5 sha1 sha256 sha512)];
 
 # This suite exists to exercise the distribution as PUBLISHED, and the way it
