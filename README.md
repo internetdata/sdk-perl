@@ -46,8 +46,6 @@ my $id = $bogon->{versions}[-1]{id};  # bogon_ip_v1, and this is what you downlo
 
 `standing` tells you where you stand against a database, so one you have not bought is still listed and you can see that it exists.
 
-Databases commissioned for a single customer are different: they are **absent entirely** from a listing for anyone else, rather than listed with an `unlicensed` standing. The server decides that per key. So what you get back is the answer for *your* key, not a catalog of everything InternetData publishes: do not rebuild one from another source, and do not hold one listing and reuse it for a different key.
-
 ### Metadata
 
 `metadata` describes one database without transferring it - row count, build date, per-format schema, sample rows and exact sizes - so you can decide whether today's build is worth fetching and budget a transfer before starting it:
