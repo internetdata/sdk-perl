@@ -277,6 +277,8 @@ version of itself:
         license_type => 'standard',    # evaluation, standard, redistribute or undef
         starts => '2026-09-04T07:49:45.118Z',
         expires => undef,                # undef when the licence has no end date
+        renews_at => undef,              # when a rolling licence next turns over
+        notice_due_at => undef,          # last day to give notice for that term
         versions => [
             {
                 id => 'bogon_ip_v1',     # this is what you download
