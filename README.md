@@ -76,6 +76,8 @@ my $url = $client->database->download_url($id, 'csvgz');
 
 The per-request timeout that bounds an API call is lifted for a transfer, and a transfer is issued exactly once. `retries` covers the API call that hands out the link, not a transfer that may already have moved gigabytes.
 
+A format is `csvgz` or `mmdb`, and `InternetData::Database::FORMATS` lists them. Anything else is refused before a request is made.
+
 ### Verifying a download
 
 `checksums` publishes all four digests for one published file, so you can check the bytes you received:
@@ -113,12 +115,14 @@ if (my $err = $@) {
 
 Note that `rate_limited` and `quota_exceeded` both arrive as HTTP 429 and are not the same thing. A rate limit is when the API faces extreme traffic bursts and so retrying later works; but a spent quota needs your allowance raised or the window to roll over. The library retries rate limits for you, but not if your quota is exceeded. Nothing else in the 4xx range is retried at all: a misspelled database id is a 404, and asking for it three times gets the same answer three times.
 
-Retries and how many of them are per call as well as per client:
+Each attempt gives up after 30 seconds, and a transient failure is retried twice. Both can be changed for the client, and for a single call:
 
 ```perl
 my $client = InternetData->new(api_key => $key, retries => 4, timeout => 60);
-my $databases = $client->database->list(retries => 0);
+my $databases = $client->database->list(retries => 0, timeout => 5);
 ```
+
+The timeout is in seconds and applies to each attempt, so a retried call can take longer in total. A transfer isn't bound by it, so `download` and `download_bytes` refuse a per-call `timeout` rather than quietly ignoring it.
 
 ### Non-blocking use
 

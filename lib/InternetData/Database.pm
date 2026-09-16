@@ -9,6 +9,11 @@ use InternetData::Error;
 
 our $VERSION = '1.3.0';
 
+# The formats a database is published in. Anything else is refused before it
+# reaches the API, whose 400 would cost a round trip and name nothing to act on.
+use constant FORMATS => qw(csvgz mmdb);
+my %FORMAT = map { $_ => 1 } FORMATS;
+
 # Every database this organization may see, with where each one stands.
 #
 # NOT only the licensed ones: `standing` says whether a database is yours today,
@@ -100,11 +105,11 @@ sub download_url_p {
     my ($self, $id, $format, %options) = @_;
     _assert_database('download_url', $id, $format);
     my $client = $self->{client};
-    $client->_check_options('database->download_url', \%options, 'retries');
+    $client->_check_options('database->download_url', \%options, 'retries', 'timeout');
     my $url = $client->_url('/api/v2/database/download', id => $id, format => $format);
     my $retries = defined $options{retries} ? $options{retries} : $client->{retries};
     return $client->_retry_p($retries, sub {
-        $client->_get_p($url)->then(sub {
+        $client->_get_p($url, $options{timeout})->then(sub {
             my $res = shift->res;
             return _location($res) if $res->code == 302;
             # A 2xx here means the user agent followed the redirect and read the
@@ -184,7 +189,9 @@ sub _new {
 
 # The 302 is followed as a SECOND request, and that transfer is issued exactly
 # once: `retries` covers the API call that hands out the link, not a transfer
-# that may have moved gigabytes before it failed.
+# that may have moved gigabytes before it failed. A per-call `timeout` is refused
+# rather than spent on that call alone, where a caller would read it as bounding
+# the transfer, which nothing does.
 sub _transfer_p {
     my ($self, $method, $id, $format, $options, $on_chunk) = @_;
     my $client = $self->{client};
@@ -196,16 +203,18 @@ sub _transfer_p {
 sub _body_p {
     my ($self, $method, $options, $path, @query) = @_;
     my $client = $self->{client};
-    $client->_check_options("database->$method", $options, 'retries');
+    $client->_check_options("database->$method", $options, 'retries', 'timeout');
     my $url = $client->_url($path, @query);
     my $retries = defined $options->{retries} ? $options->{retries} : $client->{retries};
-    return $client->_retry_p($retries, sub { $client->_json_p($url) });
+    return $client->_retry_p($retries, sub { $client->_json_p($url, $options->{timeout}) });
 }
 
 sub _assert_database {
     my ($method, $id, $format) = @_;
     Carp::croak("database->$method: expected a database id") if !defined $id || !length $id;
     Carp::croak("database->$method: expected a format") if !defined $format || !length $format;
+    Carp::croak("database->$method: '$format' is not a published format; expected one of "
+        . join(', ', FORMATS)) unless $FORMAT{$format};
 }
 
 sub _location {
@@ -257,9 +266,18 @@ client spells the same seven calls the same way, and a program holding both
 should not have to remember which one is flat.
 
 Every method has a C<_p> twin returning a L<Mojo::Promise>, and every method
-takes a per-call C<retries> option. Failures die with an L<InternetData::Error>.
+takes a per-call C<retries> option. Every method but the two transfers also
+takes a per-call C<timeout> in seconds, replacing the client's for each attempt
+of that call. Failures die with an L<InternetData::Error>.
 
 =head1 METHODS
+
+=head2 FORMATS
+
+    my @formats = InternetData::Database::FORMATS;    # ('csvgz', 'mmdb')
+
+The formats a database is published in. A method taking a C<$format> croaks on
+anything else before it makes a request.
 
 =head2 list
 
@@ -362,6 +380,7 @@ would break the download too.
 That transfer is issued exactly once. C<retries> covers the API call that hands
 out the link, not a transfer that may already have moved gigabytes before it
 failed, and the per-request timeout that bounds an API call is lifted for it.
+That is why C<download> and C<download_bytes> refuse a per-call C<timeout>.
 
 =head1 SEE ALSO
 

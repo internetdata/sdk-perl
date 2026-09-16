@@ -60,4 +60,14 @@ sub reset {
     return $self;
 }
 
+# Sends the headers and the start of a body, then nothing, for longer than any
+# bound in the suite: a deadline that stopped the clock at the headers would
+# never fire here.
+sub stall_body {
+    my ($c) = @_;
+    $c->res->headers->content_type('application/json');
+    $c->res->headers->content_length(1024);
+    $c->write('{"ip":');
+}
+
 1;
