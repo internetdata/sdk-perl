@@ -133,8 +133,9 @@ subtest 'retries are configurable per call' => sub {
     is($origin->count, 1, 'the client default still applies without an override');
 };
 
-subtest 'a per-call timeout below the client one fires on a stalled body' => sub {
-    my $origin = InternetDataTest::Origin->new(\&InternetDataTest::Origin::stall_body);
+for my $body (qw(stall_body trickle_body)) {
+subtest "a per-call timeout below the client one fires on a $body" => sub {
+    my $origin = InternetDataTest::Origin->new(\&{"InternetDataTest::Origin::$body"});
     my $db = InternetData->new(
         base_url => $origin->url, api_key => 'k', retries => 0, timeout => 3,
     )->database;
@@ -159,7 +160,18 @@ subtest 'a per-call timeout below the client one fires on a stalled body' => sub
         cmp_ok($elapsed, '>=', 0.2, "$name: the call waited for it");
         cmp_ok($elapsed, '<', 1.5, "$name: the call's 0.25s fired, not the client's 3s");
     }
+
+    # A per-call value left on something the client shares would pass the loop
+    # above and leave every later call on the wrong bound.
+    my $bounded = InternetData->new(base_url => $origin->url, api_key => 'k', retries => 0, timeout => 0.25);
+    my $started = Time::HiRes::time();
+    eval { $bounded->database->list };
+    my $elapsed = Time::HiRes::time() - $started;
+    is(ref $@ && $@->kind, 'network', "without an override the client's own bound fires");
+    cmp_ok($elapsed, '>=', 0.2, 'after waiting for it');
+    cmp_ok($elapsed, '<', 1.5, 'at its 0.25s');
 };
+}
 
 subtest 'a per-call timeout bounds every attempt of that call and nothing after it' => sub {
     my $origin = InternetDataTest::Origin->new(sub {
