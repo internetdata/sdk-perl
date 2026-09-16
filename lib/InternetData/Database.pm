@@ -187,17 +187,26 @@ sub _new {
     return bless { client => $client }, $class;
 }
 
-# The 302 is followed as a SECOND request, and that transfer is issued exactly
-# once: `retries` covers the API call that hands out the link, not a transfer
-# that may have moved gigabytes before it failed. A per-call `timeout` is refused
-# rather than spent on that call alone, where a caller would read it as bounding
-# the transfer, which nothing does.
+# The 302 is followed as a SECOND request. `retries` covers it only until the
+# first byte reaches the caller: object storage failing before that is retried
+# like any 5xx, but a transfer that dies part way is not repeated, or the second
+# copy would append to the bytes already written. A per-call `timeout` is refused
+# rather than spent on the link call alone, where a caller would read it as
+# bounding the transfer, which nothing does.
 sub _transfer_p {
     my ($self, $method, $id, $format, $options, $on_chunk) = @_;
     my $client = $self->{client};
     $client->_check_options("database->$method", $options, 'retries');
-    return $self->download_url_p($id, $format, %$options)
-        ->then(sub { $client->_stream_p(shift, $on_chunk) });
+    my $retries = defined $options->{retries} ? $options->{retries} : $client->{retries};
+    my $delivered = 0;
+    my $count = sub {
+        $delivered += length $_[0];
+        $on_chunk->(@_);
+    };
+    return $self->download_url_p($id, $format, %$options)->then(sub {
+        my $url = shift;
+        return $client->_retry_p($retries, sub { $client->_stream_p($url, $count) }, sub { !$delivered });
+    });
 }
 
 sub _body_p {
@@ -377,10 +386,11 @@ would hand it to a host with no business holding it - and object storage answers
 C<400> to a presigned GET that also carries an C<Authorization> header, so it
 would break the download too.
 
-That transfer is issued exactly once. C<retries> covers the API call that hands
-out the link, not a transfer that may already have moved gigabytes before it
-failed, and the per-request timeout that bounds an API call is lifted for it.
-That is why C<download> and C<download_bytes> refuse a per-call C<timeout>.
+C<retries> covers that transfer only until its first byte reaches you: object
+storage failing before then is retried like any server error, but a transfer
+that dies part way is not repeated, since a second copy would append to the bytes
+already written. The per-request timeout that bounds an API call is lifted for
+it, which is why C<download> and C<download_bytes> refuse a per-call C<timeout>.
 
 =head1 SEE ALSO
 
