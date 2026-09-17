@@ -14,6 +14,11 @@ our $VERSION = '1.4.1';
 use constant FORMATS => qw(csvgz mmdb);
 my %FORMAT = map { $_ => 1 } FORMATS;
 
+# The values `list` reports for standing and license_type, so a caller can branch
+# on each without spelling the list. license_type is undef for an unlicensed family.
+use constant STANDINGS => qw(licensed expired unlicensed);
+use constant LICENSE_TYPES => qw(evaluation standard redistribute);
+
 # Every database this organization may see, with where each one stands.
 #
 # NOT only the licensed ones: `standing` says whether a database is yours today,
@@ -288,6 +293,19 @@ of that call. Failures die with an L<InternetData::Error>.
 The formats a database is published in. A method taking a C<$format> croaks on
 anything else before it makes a request.
 
+=head2 STANDINGS
+
+    my @standings = InternetData::Database::STANDINGS;    # ('licensed', 'expired', 'unlicensed')
+
+Every C<standing> L</list> reports.
+
+=head2 LICENSE_TYPES
+
+    my @types = InternetData::Database::LICENSE_TYPES;    # ('evaluation', 'standard', 'redistribute')
+
+Every C<license_type> L</list> reports. A family you hold no license for carries
+C<undef> instead, which is not a member.
+
 =head2 list
 
     my $databases = $client->database->list;
@@ -372,11 +390,11 @@ never left short and silent.
 Downloads one file and returns its bytes.
 
 B<This holds the entire file in memory>, and the catalog spans seven orders of
-magnitude, from C<bogon_asn_v1> at 264 bytes to C<resproxy_ip_14d_v1> at
-5.34 GiB. Reach for it at the small end, where the bytes go straight into a
-parser, and use L</download> for anything you have not measured; L</metadata>
-publishes the size per format without transferring anything, which is how you
-find out which end you are at.
+magnitude, from C<bogon_asn_v1> at 264 bytes to C<resproxy_ip_14d_v1> at 5.34
+GiB. Reach for it at the small end, where the bytes go straight into a parser,
+and use L<download|/"download($id, $format, $path)"> for anything you have not
+measured; L<metadata|/"metadata($id)"> publishes the size per format without
+transferring anything, which is how you find out which end you are at.
 
 =head1 TRANSFERS
 

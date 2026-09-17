@@ -26,12 +26,17 @@ sub new {
 
     my $retries = defined $args{retries} ? $args{retries} : 2;
     Carp::croak('InternetData->new: retries cannot be negative') if $retries < 0;
+    # Mojo arms a negative or non-numeric bound as a timer that fires at once, so
+    # every call would fail as a network error after reaching the server.
+    my $timeout = defined $args{timeout} ? $args{timeout} : 30;
+    Carp::croak('InternetData->new: timeout must be a number of seconds, 0 or more')
+        unless Scalar::Util::looks_like_number($timeout) && $timeout >= 0;
 
     my $self = bless {
         api_key => $args{api_key},
         base_url => _base_url($args{base_url}),
         retries => $retries,
-        timeout => defined $args{timeout} ? $args{timeout} : 30,
+        timeout => $timeout,
         ua => $args{ua} || Mojo::UserAgent->new,
     }, $class;
 

@@ -245,6 +245,20 @@ subtest 'a per-call timeout is refused where it cannot work' => sub {
     ok(!-e "$path.part", 'nor was a .part file left behind');
 };
 
+subtest 'a client-wide timeout is refused where it cannot work' => sub {
+    my $origin = InternetDataTest::Origin->new(sub { shift->render(json => { databases => [] }) });
+
+    for my $bad (-1, 'soon') {
+        my $client = eval { InternetData->new(base_url => $origin->url, api_key => 'k', timeout => $bad) };
+        like($@, qr/InternetData->new: timeout must be a number of seconds/, "new refuses timeout => $bad");
+        ok(!$client, "and builds no client for timeout => $bad");
+    }
+    is($origin->count, 0, 'and not one request was spent finding out');
+    # 0 is no bound at all, which is a choice rather than a mistake.
+    is_deeply(InternetData->new(base_url => $origin->url, api_key => 'k', timeout => 0)->database->list,
+        [], 'while timeout => 0 still builds a client that answers');
+};
+
 subtest 'an unpublished format is refused before the network' => sub {
     my $origin = InternetDataTest::Origin->new(sub {
         my ($c, $o) = @_;
@@ -278,6 +292,15 @@ subtest 'an unpublished format is refused before the network' => sub {
         $db->download_url('bogon_ip_v1', $format);
     }
     is($origin->count, 4, 'while every published format still reaches the API');
+};
+
+subtest 'every closed vocabulary is listed at runtime, as the pinned spec publishes it' => sub {
+    # The corpus reads these out of the pinned spec, so a value the spec gains
+    # reddens this after the next re-pin rather than leaving a list quietly short.
+    my $corpus = InternetDataTest::corpus();
+    is_deeply([InternetData::Database::FORMATS], $corpus->{formats}, 'FORMATS');
+    is_deeply([InternetData::Database::STANDINGS], $corpus->{standings}, 'STANDINGS');
+    is_deeply([InternetData::Database::LICENSE_TYPES], $corpus->{license_type}, 'LICENSE_TYPES');
 };
 
 subtest 'a 429 is retried only when it carries Retry-After' => sub {
