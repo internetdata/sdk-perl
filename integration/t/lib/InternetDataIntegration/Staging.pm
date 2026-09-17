@@ -146,7 +146,7 @@ sub catalog {
     return $CATALOG = $databases;
 }
 
-# The families this organization holds a LIVE licence for, which is what a
+# The families this organization holds a LIVE license for, which is what a
 # download may be attempted against. Everything else in the listing is published
 # but not bought, and asking for it is the refusal one of the tests wants.
 sub licensed {

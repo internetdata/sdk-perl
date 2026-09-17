@@ -24,7 +24,7 @@ subtest 'the catalog reads as the published schema describes it' => sub {
         ok(length($db->{name} || ''), "$db->{base} carries a name");
         # A family is keyed by `base` and the id a download takes hangs off
         # `versions`. A listing keyed by a database id could not tell a caller
-        # what a licence covers.
+        # what a license covers.
         ok(!exists $db->{id}, "$db->{base} is keyed by base rather than by a database id");
         ok(scalar(grep { $_ eq ($db->{standing} || '') } @{ +STANDINGS }),
             "$db->{base}: standing is one the schema documents");
@@ -47,14 +47,14 @@ subtest 'the catalog reads as the published schema describes it' => sub {
 };
 
 subtest 'this organization holds at least one live licence' => sub {
-    # A licence carrying `expires` in the past reports as `expired`, so a CI
+    # A license carrying `expires` in the past reports as `expired`, so a CI
     # credential that quietly lapses shows up here rather than months later as a
     # refusal nobody can explain from the diff.
     my $live = licensed(catalog());
 
     ok(@$live, 'the CI credential licenses nothing, so nothing can be downloaded') or return;
     for my $db (@$live) {
-        ok(defined $db->{license_type}, "$db->{base}: a live licence with no license_type term");
+        ok(defined $db->{license_type}, "$db->{base}: a live license with no license_type term");
     }
     note('licensed: ' . join(', ', map { $_->{base} } @$live));
 };
@@ -98,7 +98,7 @@ subtest 'a database this organization does not license is refused without a retr
     isa_ok($error, 'InternetData::Error', 'the refusal');
     is($error->kind, 'forbidden', "$version->{id}: classified as forbidden");
     is($error->status, 403, "$version->{id}: carrying the status");
-    is($error->retryable, 0, "$version->{id}: a licence refusal is not worth retrying");
+    is($error->retryable, 0, "$version->{id}: a license refusal is not worth retrying");
     # The API says WHICH refusal this is, under `rc`, and NOT_LICENSED and
     # LICENSE_EXPIRED are both 403. Falling back to the status means the client
     # never read the envelope.

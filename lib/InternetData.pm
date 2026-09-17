@@ -274,7 +274,7 @@ your organization's recent download attempts.
 Every endpoint published today needs a key carrying the C<db.download> scope.
 L</new> takes one as an option rather than requiring it: a client built without
 a key sends no C<Authorization> header at all, which is what a database served
-without a licence would need.
+without a license would need.
 
 =head1 METHODS
 

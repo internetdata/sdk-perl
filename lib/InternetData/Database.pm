@@ -311,18 +311,18 @@ C<undef> instead, which is not a member.
     my $databases = $client->database->list;
 
 An array reference of the database B<families> this organization may see. A
-licence is held against a family, and each family carries every published
+license is held against a family, and each family carries every published
 version of itself:
 
     {
-        base => 'bogon_ip',              # what a licence is held against
+        base => 'bogon_ip',              # what a license is held against
         name => 'Bogon IP',
         summary => 'IP ranges that cannot legitimately appear on the internet.',
         standing => 'licensed',          # licensed, expired or unlicensed
         license_type => 'standard',    # evaluation, standard, redistribute or undef
         starts => '2026-09-04T07:49:45.118Z',
-        expires => undef,                # undef when the licence has no end date
-        renews_at => undef,              # when a rolling licence next turns over
+        expires => undef,                # undef when the license has no end date
+        renews_at => undef,              # when a rolling license next turns over
         notice_due_at => undef,          # last day to give notice for that term
         versions => [
             {
