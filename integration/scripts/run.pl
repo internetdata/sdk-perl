@@ -21,8 +21,9 @@ use File::Spec ();
 #
 #   1. Nothing published satisfies the floor in cpanfile. Before the first release
 #      there is no artifact to test at all.
-#   2. The staging key is missing. The suite then skips from inside Test::More, so
-#      the skip and its reason land in the test output rather than only here.
+#   2. The staging key is missing. The database tests then skip from inside
+#      Test::More, so the skip and its reason land in the test output rather than
+#      only here. The OAuth checks carry no key and run regardless.
 
 my $MODULE = 'InternetData';
 my $SECRET = 'INTERNETDATA_STAGING_KEY';
@@ -126,8 +127,8 @@ PROBE
 
 sub report_key {
     if (!length($ENV{$SECRET} || '')) {
-        print "==> no staging key: the suite will skip\n";
-        notice("$SECRET is not set, so every served assertion is skipped");
+        print "==> no staging key: the database tests will skip\n";
+        notice("$SECRET is not set, so every database assertion is skipped");
         return;
     }
     print "==> staging key present\n";
