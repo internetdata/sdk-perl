@@ -26,7 +26,7 @@ docker run --rm \
     -e "PERL5LIB=/deps/lib/perl5" \
     "$PERL_IMAGE" sh -euc "
         cpanm --notest --quiet --skip-satisfied --local-lib=/deps \
-            Mojolicious IO::Socket::SSL
+            Mojolicious IO::Socket::SSL Net::SSLeay
         cp -R /src /w
         cd /w
         perl Makefile.PL
