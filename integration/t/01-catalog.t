@@ -89,11 +89,14 @@ subtest 'a database this organization does not license is refused without a retr
 
     my $version = $others->[0]{versions}[-1];
     # Retries would only slow a refusal down: it is a client error either way,
-    # and this asserts the library agrees rather than hammering a 403.
-    my $meta = eval { client(retries => 3)->database->metadata($version->{id}) };
+    # and this asserts the library agrees rather than hammering a 403. A
+    # download, because metadata answers every family the catalog lists.
+    my $url = eval {
+        client(retries => 3)->database->download_url($version->{id}, $version->{formats}[0])
+    };
     my $error = $@;
 
-    ok(!defined $meta, "$version->{id} is not licensed to this organization")
+    ok(!defined $url, "$version->{id} is not licensed to this organization")
         or diag("$version->{id} is now licensed here, so this assertion says nothing");
     isa_ok($error, 'InternetData::Error', 'the refusal');
     is($error->kind, 'forbidden', "$version->{id}: classified as forbidden");
