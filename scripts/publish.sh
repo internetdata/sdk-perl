@@ -6,7 +6,7 @@
 # when Actions is not an option.
 #
 #   PAUSE_USER=... PAUSE_PASSWORD=... ./scripts/publish.sh
-#   PAUSE_USER=... PAUSE_PASSWORD=... DRY_RUN=1 ./scripts/publish.sh
+#   DRY_RUN=1 ./scripts/publish.sh             # everything but the upload
 #
 # PAUSE has no OIDC or trusted-publishing path, unlike npm, PyPI, RubyGems and
 # crates.io, so every release needs the credential. Use the PAUSE account
@@ -16,14 +16,21 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-: "${PAUSE_USER:?set PAUSE_USER to your PAUSE id}"
-: "${PAUSE_PASSWORD:?set PAUSE_PASSWORD to your PAUSE password}"
 PERL_IMAGE="${PERL_IMAGE:-perl:5.40}"
 DRY_RUN="${DRY_RUN:-}"
 
-upload='cpan-upload --user "$PAUSE_USER" --password "$PAUSE_PASSWORD" InternetData-*.tar.gz'
+# The credential goes in by NAME, docker's bare -e, and reaches cpan-upload
+# through a config file written by printf, a shell builtin: on a command line,
+# docker's or cpan-upload's, ps would show it to every user of the box.
+upload='umask 077
+        printf "user %s\npassword %s\n" "$PAUSE_USER" "$PAUSE_PASSWORD" > /tmp/pause
+        cpanm --notest --quiet CPAN::Uploader
+        cpan-upload --config /tmp/pause InternetData-*.tar.gz'
 if [ -n "$DRY_RUN" ] ; then
     upload='echo "DRY_RUN: would upload $(ls InternetData-*.tar.gz)"'
+else
+    : "${PAUSE_USER:?set PAUSE_USER to your PAUSE id}"
+    : "${PAUSE_PASSWORD:?set PAUSE_PASSWORD to your PAUSE password}"
 fi
 
 # The tree is mounted READ ONLY and copied in, so a build cannot leave blib/, a
@@ -40,7 +47,6 @@ docker run --rm \
         # --installdeps against the read-only mount fails at configure time and
         # takes the whole release with it.
         cpanm --notest --quiet --installdeps .
-        cpanm --notest --quiet CPAN::Uploader
         tag=\"\$(perl -Ilib -MInternetData -e 'print \$InternetData::VERSION')\"
         echo \"==> InternetData \$tag\"
         perl Makefile.PL

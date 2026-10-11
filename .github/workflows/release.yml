@@ -37,9 +37,13 @@ jobs:
         env:
           PAUSE_USER: ${{ secrets.PAUSE_USER }}
           PAUSE_PASSWORD: ${{ secrets.PAUSE_PASSWORD }}
+        # Through a 0600 file written by printf, a shell builtin: as arguments,
+        # ps would show the password for the whole upload.
         run: |
           cpanm --notest --quiet CPAN::Uploader
-          cpan-upload --user "$PAUSE_USER" --password "$PAUSE_PASSWORD" InternetData-*.tar.gz
+          umask 077
+          printf 'user %s\npassword %s\n' "$PAUSE_USER" "$PAUSE_PASSWORD" > "$RUNNER_TEMP/pause"
+          cpan-upload --config "$RUNNER_TEMP/pause" InternetData-*.tar.gz
 
   github-release:
     needs: publish
