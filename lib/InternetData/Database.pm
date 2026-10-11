@@ -211,10 +211,11 @@ sub _transfer_p {
     });
 }
 
-# The member each call returns from one level down, and what it must be; a call
-# not named here returns the whole answer.
+# The member each call returns from one level down, and what it must be; or, for
+# a call returning the whole answer, the members it may not go without.
 my %UNWRAP = (
     list => [databases => 'ARRAY'],
+    metadata => [undef, undef, 'id'],
     checksums => [checksums => 'HASH'],
     downloads => [downloads => 'ARRAY'],
 );
