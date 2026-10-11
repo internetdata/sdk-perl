@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Cwd ();
+use Digest::SHA ();
 use File::Basename ();
 use File::Path ();
 use File::Spec ();
@@ -24,12 +25,21 @@ use File::Spec ();
 #   2. The staging key is missing. The database tests then skip from inside
 #      Test::More, so the skip and its reason land in the test output rather than
 #      only here. The OAuth checks carry no key and run regardless.
+#
+# A third makes it a FAILURE: a tarball other than the one CPAN publishes. cpanm
+# resolves through whatever PERL_CPANM_OPT names, a mirror of someone's own
+# included, and a module loaded from local/ proves only that cpanm installed it,
+# so the tarball it installed is held to the sha256 CPAN's CHECKSUMS lists.
 
+# Where that CHECKSUMS is read: cpanm's own default mirror, unless a rehearsal
+# against a stand-in for CPAN names another.
+my $CPAN = $ENV{CPAN_MIRROR} || 'https://www.cpan.org';
 my $MODULE = 'InternetData';
 my $SECRET = 'INTERNETDATA_STAGING_KEY';
 my $ROOT = Cwd::abs_path(File::Spec->catdir(File::Basename::dirname(__FILE__), '..'));
 my $LOCAL_LIB = File::Spec->catdir($ROOT, 'local');
 my $INSTALLED_LIB = File::Spec->catdir($LOCAL_LIB, 'lib', 'perl5');
+my $DISTS = File::Spec->catdir($LOCAL_LIB, 'dists');
 
 main();
 
@@ -46,9 +56,10 @@ sub main {
     # tree would pin whatever the first run happened to pick, and the daily run
     # would stop noticing new releases.
     File::Path::rmtree($LOCAL_LIB) if -d $LOCAL_LIB;
-    run(cpanm(), '--notest', '--quiet', "--local-lib=$LOCAL_LIB", "$MODULE~>=$floor")
+    run(cpanm(), '--notest', '--quiet', "--local-lib=$LOCAL_LIB", "--save-dists=$DISTS", "$MODULE~>=$floor")
         or fail("cpanm could not install $MODULE~>=$floor");
-    assert_installed($floor);
+    my $version = assert_installed($floor);
+    assert_published_tarball($version);
 
     # Overwritten rather than extended: an inherited PERL5LIB naming the working
     # tree beside this directory would put the unreleased code back in @INC, and
@@ -123,6 +134,32 @@ PROBE
     fail("$MODULE was loaded from $resolved, which is not the installed copy under $installed")
         unless index($resolved, "$installed/") == 0;
     print "==> testing $MODULE $version from $resolved\n";
+    return $version;
+}
+
+# The tarball cpanm installed, held to the sha256 CPAN's CHECKSUMS lists for that
+# file. Read cache-busted: the CDN in front of CPAN holds a listing for minutes,
+# and a release this run is the first to see would be missing from it.
+sub assert_published_tarball {
+    my ($version) = @_;
+    my $file = "$MODULE-$version.tar.gz";
+    my @saved = glob(File::Spec->catfile($DISTS, 'authors', 'id', '*', '*', '*', $file));
+    fail("cpanm kept no $file under $DISTS, so what it installed cannot be checked")
+        unless @saved == 1;
+    my ($author) = $saved[0] =~ m{/authors/id/(.+)/[^/]+\z};
+
+    my $url = "$CPAN/authors/id/$author/CHECKSUMS?t=" . time;
+    my ($ok, $checksums) = capture('curl', '-fsS', $url);
+    fail("cannot read $url\n$checksums") unless $ok;
+    my ($entry) = $checksums =~ /'\Q$file\E'\s*=>\s*\{([^}]*)\}/;
+    my ($want) = defined $entry ? $entry =~ /'sha256'\s*=>\s*'([0-9a-f]{64})'/ : ();
+    fail("$CPAN lists no sha256 for $file, so nothing says it published what cpanm installed")
+        unless $want;
+
+    my $have = Digest::SHA->new(256)->addfile($saved[0], 'b')->hexdigest;
+    fail("the $file cpanm installed has sha256 $have where $CPAN publishes $want, "
+        . 'so something other than CPAN served it') unless $have eq $want;
+    print "==> $file is the tarball $CPAN publishes, sha256 $have\n";
 }
 
 sub report_key {
