@@ -326,7 +326,7 @@ version of itself:
         name => 'Bogon IP',
         summary => 'IP ranges that cannot legitimately appear on the internet.',
         standing => 'licensed',          # licensed, expired or unlicensed
-        open => 0,                       # true when any organization downloads it, under CC BY-SA 4.0
+        open => 0,                       # true for an Open database, free under CC BY-SA 4.0
         license_type => 'standard',    # evaluation, standard, redistribute or undef
         starts => '2026-09-04T07:49:45.118Z',
         expires => undef,                # undef when the license has no end date
@@ -363,8 +363,8 @@ algorithm.
 
 Your organization's recent download attempts, newest first, refusals included.
 C<sample> is true on an attempt at the evaluation sample rather than the
-database itself, and C<open> on one taken under the Open license rather than
-one of yours. C<limit> caps the number returned.
+database itself, and C<open> on a download of an Open database. C<limit> caps
+the number returned.
 
 =head2 download_url($id, $format)
 
