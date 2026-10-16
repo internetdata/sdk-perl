@@ -34,8 +34,13 @@ sub transferable {
                 my $size = $meta->{size}{$format};
                 BAIL_OUT("$version->{id}.$format publishes no size, so it cannot be budgeted")
                     unless $size;
-                BAIL_OUT("$version->{id}.$format is $size bytes, past the "
-                    . SIZE_CEILING . ' byte CI budget') if $size > SIZE_CEILING;
+                # An Open database is licensed to every organization, so a
+                # licensed file past the budget is passed over, not failed.
+                if ($size > SIZE_CEILING) {
+                    diag("$version->{id}.$format is $size bytes, past the "
+                        . SIZE_CEILING . ' byte CI budget: not transferred');
+                    next;
+                }
                 push @out, { id => $version->{id}, format => $format, size => $size };
             }
         }
