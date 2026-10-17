@@ -37,6 +37,7 @@ my %METADATA = (
     token_endpoint_auth_methods_supported => ['list'],
     authorization_response_iss_parameter_supported => ['bool'],
     client_id_metadata_document_supported => ['bool'],
+    registration_endpoint => ['string'],
     service_documentation => ['string'],
 );
 my %DEVICE_AUTHORIZATION = (
@@ -431,8 +432,8 @@ C<device_authorization_endpoint>, C<revocation_endpoint>, C<scopes_supported>,
 C<response_types_supported>, C<grant_types_supported>,
 C<code_challenge_methods_supported>, C<token_endpoint_auth_methods_supported>,
 C<authorization_response_iss_parameter_supported>,
-C<client_id_metadata_document_supported> and C<service_documentation> it
-carries.
+C<client_id_metadata_document_supported>, C<registration_endpoint> and
+C<service_documentation> it carries.
 
 =head2 device_authorization($client_id, %options)
 
