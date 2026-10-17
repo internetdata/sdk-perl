@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.10.1 - 2026-10-17
+
+### Fixes
+
+- Refuse a database answer whose member has the wrong type ([`c4d8144`](https://github.com/internetdata/sdk-perl/commit/c4d81447a5deea913497e32e2bb1967a94ae6325))
+
 ## 1.10.0 - 2026-10-17
 
 ### Features
