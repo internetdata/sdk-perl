@@ -139,7 +139,9 @@ PROBE
 
 # The tarball cpanm installed, held to the sha256 CPAN's CHECKSUMS lists for that
 # file. Read cache-busted: the CDN in front of CPAN holds a listing for minutes,
-# and a release this run is the first to see would be missing from it.
+# and a release this run is the first to see would be missing from it. Retried
+# for two minutes: that CDN answered 503 for at least 85 s after an upload
+# (2026-10-20, 07:27:55 to 07:29:20 UTC).
 sub assert_published_tarball {
     my ($version) = @_;
     my $file = "$MODULE-$version.tar.gz";
@@ -149,7 +151,7 @@ sub assert_published_tarball {
     my ($author) = $saved[0] =~ m{/authors/id/(.+)/[^/]+\z};
 
     my $url = "$CPAN/authors/id/$author/CHECKSUMS?t=" . time;
-    my ($ok, $checksums) = capture('curl', '-fsS', $url);
+    my ($ok, $checksums) = capture('curl', '-fsS', '--retry', '8', '--retry-delay', '15', $url);
     fail("cannot read $url\n$checksums") unless $ok;
     my ($entry) = $checksums =~ /'\Q$file\E'\s*=>\s*\{([^}]*)\}/;
     my ($want) = defined $entry ? $entry =~ /'sha256'\s*=>\s*'([0-9a-f]{64})'/ : ();
