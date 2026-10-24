@@ -452,7 +452,7 @@ subtest 'a per-call timeout bounds every attempt of that call and nothing after 
 };
 
 subtest "a request started inside another call's window takes its own bound" => sub {
-    my $origin = InternetDataTest::Origin->new(sub { shift->render(json => { databases => [] }) });
+    my $origin = InternetDataTest::Origin->new(sub { shift->render(json => { databases => [], downloads => [] }) });
     my $ua = Mojo::UserAgent->new;
     my $db = InternetData->new(base_url => $origin->url, api_key => 'k', timeout => 3, ua => $ua)->database;
     my (%bound, $nested);
