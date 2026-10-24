@@ -14,7 +14,7 @@ use InternetData::Database;
 use InternetData::Error;
 use InternetData::Oauth;
 
-our $VERSION = '1.11.2';
+our $VERSION = '1.11.3';
 
 use constant DEFAULT_BASE_URL => 'https://internetdata.io';
 
