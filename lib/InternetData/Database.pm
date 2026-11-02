@@ -137,7 +137,7 @@ sub download {
 sub download_p {
     my ($self, $id, $format, $path, %options) = @_;
     # Everything a caller can get wrong is refused before the file is opened, so
-    # a mistyped id cannot leave a stray .part behind.
+    # a mistyped ID cannot leave a stray .part behind.
     _assert_database('download', $id, $format);
     $self->{client}->_check_options('database->download', \%options, 'retries');
     Carp::croak('database->download: expected a destination path')

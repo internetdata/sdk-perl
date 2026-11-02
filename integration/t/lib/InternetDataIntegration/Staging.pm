@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
 
 # The staging fixtures the test files share: the guard that this is the
 # PUBLISHED distribution, the request recorder, one client, one catalog, and the
-# budget that keeps a mistaken id from pulling a real database through CI.
+# budget that keeps a mistaken ID from pulling a real database through CI.
 
 use constant STAGING => 'https://staging.internetdata.io';
 
@@ -29,7 +29,7 @@ use constant SECRET => 'INTERNETDATA_STAGING_KEY';
 
 # Every transfer is budgeted against `metadata`'s published size BEFORE it
 # starts. The licensed databases are a few kilobytes; published ones reach
-# 5.34 GiB, so a mistyped id is the difference between a free run and a very
+# 5.34 GiB, so a mistyped ID is the difference between a free run and a very
 # slow one.
 use constant SIZE_CEILING => 8 * 1024 * 1024;
 

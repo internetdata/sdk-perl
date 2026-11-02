@@ -66,9 +66,9 @@ sub from_response {
     return $class->new(kind => 'forbidden', message => $message, status => $status)
         if $status == 403;
     # Any other 4xx is a CLIENT error, and 404 is one this API actually serves:
-    # a database id it does not publish, or a build not mirrored yet. Falling
+    # a database ID it does not publish, or a build not mirrored yet. Falling
     # through to the server_error default would make it retryable, so a
-    # misspelled id would be requested three times before failing. Classified on
+    # misspelled ID would be requested three times before failing. Classified on
     # the RANGE rather than an enumerated list, so a status added later cannot
     # land in the wrong half.
     return $class->new(kind => 'bad_request', message => $message, status => $status)

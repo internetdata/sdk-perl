@@ -229,7 +229,7 @@ subtest 'a 2xx a database call cannot read as its answer is a retried server_err
         ['', 'application/json'], ['[]', 'application/json'],
         ['{}', 'application/json'],
         ['{"databases":{},"checksums":[],"downloads":"x"}', 'application/json', 'list', 'checksums', 'downloads'],
-        # metadata IS the answer, so an object without its id is none.
+        # metadata IS the answer, so an object without its ID is none.
         ['{"id":null,"updated":"2026-10-10"}', 'application/json', 'metadata'],
     );
     for my $case (@bodies) {
@@ -291,7 +291,7 @@ subtest 'a member of the wrong type at any depth is a retried server_error' => s
         [metadata => InternetDataTest::metadata(size => { csvgz => undef })],
         [checksums => $sums->(sha256 => 1)],
         [checksums => $sums->(sha512 => undef)],
-        # Through 1.11.2 nothing read the answer's id or format, so an answer
+        # Through 1.11.2 nothing read the answer's ID or format, so an answer
         # without either came back whole.
         [checksums => InternetDataTest::checksum(id => undef)],
         [checksums => InternetDataTest::checksum(format => undef)],

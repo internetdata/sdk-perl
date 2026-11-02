@@ -23,7 +23,7 @@ my $tmp = File::Temp->newdir;
 
 # Every version this organization may actually fetch, budgeted against the size
 # `metadata` publishes BEFORE anything is transferred. The point of doing it here
-# rather than after is that a mistaken id never gets to move gigabytes.
+# rather than after is that a mistaken ID never gets to move gigabytes.
 sub transferable {
     my @out;
     for my $db (@{ licensed(catalog()) }) {

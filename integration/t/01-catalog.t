@@ -22,8 +22,8 @@ subtest 'the catalog reads as the published schema describes it' => sub {
     for my $db (@$databases) {
         ok(length($db->{base} || ''), 'a family carries a base');
         ok(length($db->{name} || ''), "$db->{base} carries a name");
-        # A family is keyed by `base` and the id a download takes hangs off
-        # `versions`. A listing keyed by a database id could not tell a caller
+        # A family is keyed by `base` and the ID a download takes hangs off
+        # `versions`. A listing keyed by a database ID could not tell a caller
         # what a license covers.
         ok(!exists $db->{id}, "$db->{base} is keyed by base rather than by a database id");
         ok(scalar(grep { $_ eq ($db->{standing} || '') } @{ +STANDINGS }),
