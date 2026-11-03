@@ -2,6 +2,13 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.11.5 - 2026-11-03
+
+### Fixes
+
+- Re-pin the spec to 2026.11.02: ID and IDs in its descriptions ([`fe87a5e`](https://github.com/internetdata/sdk-perl/commit/fe87a5ebfcc7ccd4578e2ca6cd3da3777915e917))
+- Write ID and IDs in prose, never id or ids ([`60a8dd2`](https://github.com/internetdata/sdk-perl/commit/60a8dd22acc8ae97dc4d269c4aafa88e501658a8))
+
 ## 1.11.4 - 2026-10-29
 
 ### Fixes
