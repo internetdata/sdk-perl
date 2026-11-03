@@ -50,7 +50,7 @@ sub metadata {
 
 sub metadata_p {
     my ($self, $id, %options) = @_;
-    Carp::croak('database->metadata: expected a database id') if !defined $id || !length $id;
+    Carp::croak('database->metadata: expected a database ID') if !defined $id || !length $id;
     return $self->_body_p('metadata', \%options, '/api/v2/database/metadata', id => $id);
 }
 
@@ -265,7 +265,7 @@ sub _body_p {
 
 sub _assert_database {
     my ($method, $id, $format) = @_;
-    Carp::croak("database->$method: expected a database id") if !defined $id || !length $id;
+    Carp::croak("database->$method: expected a database ID") if !defined $id || !length $id;
     Carp::croak("database->$method: expected a format") if !defined $format || !length $format;
     Carp::croak("database->$method: '$format' is not a published format; expected one of "
         . join(', ', FORMATS)) unless $FORMAT{$format};
@@ -376,7 +376,7 @@ version of itself:
         ],
     }
 
-The id every other method takes is C<< $version->{id} >>, never
+The ID every other method takes is C<< $version->{id} >>, never
 C<< $family->{base} >>.
 
 =head2 metadata($id)

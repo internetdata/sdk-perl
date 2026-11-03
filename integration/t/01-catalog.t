@@ -25,7 +25,7 @@ subtest 'the catalog reads as the published schema describes it' => sub {
         # A family is keyed by `base` and the ID a download takes hangs off
         # `versions`. A listing keyed by a database ID could not tell a caller
         # what a license covers.
-        ok(!exists $db->{id}, "$db->{base} is keyed by base rather than by a database id");
+        ok(!exists $db->{id}, "$db->{base} is keyed by base rather than by a database ID");
         ok(scalar(grep { $_ eq ($db->{standing} || '') } @{ +STANDINGS }),
             "$db->{base}: standing is one the schema documents");
         ok(!defined $db->{license_type}
@@ -65,7 +65,7 @@ subtest 'metadata publishes a size for every format a version is built in' => su
             my $meta = eval { client()->database->metadata($version->{id}) };
             BAIL_OUT("reading metadata for $version->{id}: $@") unless $meta;
 
-            is($meta->{id}, $version->{id}, "$version->{id}: answered about the id asked for");
+            is($meta->{id}, $version->{id}, "$version->{id}: answered about the ID asked for");
             cmp_ok($meta->{entries}, '>=', 0, "$version->{id}: entries");
             like($meta->{updated} || '', qr/\A\d{4}-\d{2}-\d{2}\z/, "$version->{id}: updated");
             # The sizes are what every transfer in 02-download.t is budgeted

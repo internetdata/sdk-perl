@@ -192,8 +192,8 @@ subtest 'responses are unwrapped at the right depth' => sub {
     # a hand-written client gets wrong once and never notices.
     my $databases = $client->database->list;
     is_deeply($databases, [$family, $open], 'list unwraps databases');
-    is($databases->[0]{base}, 'bogon_ip', 'a family is keyed by base, not by a database id');
-    is($databases->[0]{versions}[0]{id}, 'bogon_ip_v1', 'and the id to download hangs off versions');
+    is($databases->[0]{base}, 'bogon_ip', 'a family is keyed by base, not by a database ID');
+    is($databases->[0]{versions}[0]{id}, 'bogon_ip_v1', 'and the ID to download hangs off versions');
     # An Open family's standing stays as served, never derived from open.
     is_deeply([map { [!!$_->{open}, $_->{standing}] } @$databases], [['', 'licensed'], [1, 'unlicensed']],
         'open is read beside standing');
@@ -425,7 +425,7 @@ subtest 'the query a call makes says what it asked for' => sub {
     is_deeply($requests[0]{query}, { id => 'bogon_asn_v1', format => 'csvgz' }, 'checksums');
     # No format: one metadata document describes every format the database is
     # built in.
-    is_deeply($requests[1]{query}, { id => 'bogon_asn_v1' }, 'metadata takes an id alone');
+    is_deeply($requests[1]{query}, { id => 'bogon_asn_v1' }, 'metadata takes an ID alone');
     is_deeply($requests[2]{query}, { limit => 5 }, 'downloads passes a limit through');
     is_deeply($requests[3]{query}, {}, 'and sends none when none was given');
     is_deeply($requests[4]{query}, {}, 'list takes nothing at all');
@@ -867,11 +867,11 @@ subtest 'a call refuses arguments it cannot use' => sub {
     my $client = InternetData->new(api_key => 'k');
 
     eval { $client->database->metadata('') };
-    like($@, qr/expected a database id/, 'metadata needs an id');
+    like($@, qr/expected a database ID/, 'metadata needs an ID');
     eval { $client->database->checksums('bogon_ip_v1') };
     like($@, qr/expected a format/, 'checksums needs a format');
     eval { $client->database->download_url(undef, 'csvgz') };
-    like($@, qr/expected a database id/, 'download_url needs an id');
+    like($@, qr/expected a database ID/, 'download_url needs an ID');
 };
 
 subtest 'the non-blocking API works where the blocking one cannot' => sub {

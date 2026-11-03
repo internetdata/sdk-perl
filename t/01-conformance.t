@@ -164,7 +164,7 @@ my %VISIBILITY = (
                 next if $text =~ /\A\s*#/;
                 push @found, "$line: $text" if $text =~ /["'][a-z][a-z0-9_]*_v[0-9]+["']/;
             }
-            is_deeply(\@found, [], "$file compiles in no database id");
+            is_deeply(\@found, [], "$file compiles in no database ID");
         }
     },
 

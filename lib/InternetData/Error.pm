@@ -211,6 +211,6 @@ Seconds to wait, when the API said so.
 
 Whether retrying this exact request could succeed. True for C<rate_limited>,
 C<server_error> and C<network>, false for everything else - including every
-C<4xx>, so a database id that does not exist fails once rather than three times.
+C<4xx>, so a database ID that does not exist fails once rather than three times.
 
 =cut
