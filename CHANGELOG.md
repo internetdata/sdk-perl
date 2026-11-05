@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.11.6 - 2026-11-05
+
+### Fixes
+
+- End a device poll once its wait runs to the deadline, NaN included ([`9888124`](https://github.com/internetdata/sdk-perl/commit/9888124308d5ca7ac35bf8f2e2c514b8785f981e))
+
 ## 1.11.5 - 2026-11-03
 
 ### Fixes
