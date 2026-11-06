@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.11.7 - 2026-11-06
+
+### Fixes
+
+- Re-pin the spec to 2026.11.05: the download's build parameter ([`e4c3e33`](https://github.com/internetdata/sdk-perl/commit/e4c3e3352fed6f8100bbf72240c2613640cfe870))
+
 ## 1.11.6 - 2026-11-05
 
 ### Fixes
