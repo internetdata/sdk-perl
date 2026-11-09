@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.12.1 - 2026-11-09
+
+### Fixes
+
+- Re-pin the spec to 2026.11.08: the token and revoke descriptions ([`008c498`](https://github.com/internetdata/sdk-perl/commit/008c498e2d3d61952ec40d2153caf2dd44e26fad))
+
 ## 1.12.0 - 2026-11-07
 
 ### Features
