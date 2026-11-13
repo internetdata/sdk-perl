@@ -12,7 +12,7 @@ use Test::More;
 use InternetData;
 
 our @EXPORT_OK = qw(
-    DIGESTS FORMATS SECRET SIZE_CEILING STAGING STANDINGS LICENSE_TYPE
+    DIGESTS FORMATS PROD SECRET SIZE_CEILING STAGING STANDINGS LICENSE_TYPE
     api_host api_origin catalog client facts key licensed skip_reason unlicensed
 );
 
@@ -20,7 +20,13 @@ our @EXPORT_OK = qw(
 # PUBLISHED distribution, the request recorder, one client, one catalog, and the
 # budget that keeps a mistaken ID from pulling a real database through CI.
 
-use constant STAGING => 'https://staging.internetdata.io';
+# Staging's API host, which answers the lookups and the database calls alike, as
+# the default base URL does in production.
+use constant STAGING => 'https://api-staging.internetdata.io';
+
+# Production's, for the lookups a run makes without a key: they cost no one's
+# allowance, and only production answers its own data.
+use constant PROD => 'https://api.internetdata.io';
 
 # A read-only console key for one organization, licensed to a couple of the
 # smallest published databases, so a run may download everything it is entitled

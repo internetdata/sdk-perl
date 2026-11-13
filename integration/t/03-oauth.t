@@ -17,6 +17,8 @@ use InternetDataIntegration::Staging qw(STAGING);
 
 # Already public in the CLI's source, and the only client staging accepts.
 my $CLIENT_ID = 'internetdata-cli';
+# The authorization server is the apex, not the API host the client is built on.
+my $ISSUER = 'https://staging.internetdata.io';
 # Where staging sends a person to approve a device sign-in.
 my $STAGING_CONSOLE = 'https://app-staging.internetdata.io';
 
@@ -24,7 +26,7 @@ my $oauth = InternetData->new(base_url => STAGING)->oauth;
 
 subtest 'the metadata names staging as its issuer' => sub {
     my $metadata = $oauth->metadata;
-    is($metadata->{issuer}, STAGING, 'issuer');
+    is($metadata->{issuer}, $ISSUER, 'issuer, reached from the API host');
     ok($metadata->{device_authorization_endpoint}, 'a device authorization endpoint');
     ok((grep { $_ eq 'S256' } @{ $metadata->{code_challenge_methods_supported} || [] }), 'S256');
 };
@@ -53,9 +55,9 @@ subtest 'a device authorization starts, or is slowed down' => sub {
     }
     ok(length $device->{device_code}, 'a device code');
     ok(length $device->{user_code}, 'a user code');
-    # The console's, not the apex's: the API is served at the apex here, so a page
-    # taken from the API host would be the landing page's, which a /device suffix
-    # alone still passes.
+    # The console's, not the apex's: the apex serves the landing page, so a page
+    # taken from it would be the landing page's, which a /device suffix alone
+    # still passes.
     is($device->{verification_uri}, "$STAGING_CONSOLE/device", 'the console device page');
     cmp_ok($device->{expires_in}, '>', 0, 'a positive expires_in');
     cmp_ok($device->{interval}, '>', 0, 'a positive interval');
