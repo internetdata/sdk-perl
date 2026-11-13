@@ -2,6 +2,16 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.13.0 - 2026-11-13
+
+### Features
+
+- Look up an address, an AS or a domain, on api.internetdata.io ([`948a230`](https://github.com/internetdata/sdk-perl/commit/948a2304ebe8f83bed0738ba8b853b52b7321d24))
+
+### Fixes
+
+- Re-pin the spec to 2026.11.13: the lookups and the entitlement ([`e1103d9`](https://github.com/internetdata/sdk-perl/commit/e1103d9f53b5044f518d506cbfe99a88264a0818))
+
 ## 1.12.1 - 2026-11-09
 
 ### Fixes
