@@ -264,7 +264,7 @@ sub _body_p {
     my $url = $client->_url($path, @query);
     my $retries = defined $options->{retries} ? $options->{retries} : $client->{retries};
     my @unwrap = @{ $UNWRAP{$method} || [] };
-    return $client->_retry_p($retries, sub { $client->_json_p($url, $options->{timeout}, @unwrap) });
+    return $client->_retry_p($retries, sub { $client->_json_p($url, undef, $options->{timeout}, @unwrap) });
 }
 
 sub _assert_database {
