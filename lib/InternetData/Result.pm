@@ -174,7 +174,8 @@ name, an empty string where there is none.
 =head2 whois, rwhois, hosted_domains
 
 Paid: the WHOIS and RWHOIS records for the range, and how many domains point at
-the address, or C<undef> when your plan omits them.
+the address with the 10 most popular (C<< {total => 4, domains => [...]} >>), or
+C<undef> when your plan omits them.
 
 =head2 trial_expired
 

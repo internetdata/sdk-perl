@@ -126,7 +126,7 @@ our $LOOKUP = [fields => [
     [web => [list => $WEB_SERVER]], [dns_resolver => $DNS_RESOLVER_DETAIL], [bittorrent => $BITTORRENT_DETAIL],
     [location => $LOCATION, 1], [asn => $ASN, 1], [company => $COMPANY, 1], [hostname => ['string'], 1],
     [abuse => $ABUSE, 1], [whois => $WHOIS], [rwhois => $RWHOIS],
-    [hosted_domains => [fields => [[total => ['integer'], 1]]]],
+    [hosted_domains => [fields => [[total => ['integer'], 1], [domains => [list => ['string']]]]]],
     [trial_expired => ['boolean']],
 ]];
 my $AS_PREFIX = [fields => [
