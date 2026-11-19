@@ -975,7 +975,8 @@ Addresses held in this client's cache. Defaults to 10000; B<0 disables caching>.
 
 =item cache_ttl
 
-How long an answer stays fresh, in seconds. Defaults to 3600.
+How long an answer stays fresh, in seconds. Defaults to 3600. An answer whose
+C<trial_expired> or C<cap_reached> is true stays a minute at most.
 
 =item concurrency
 
