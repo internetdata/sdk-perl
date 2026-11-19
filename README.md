@@ -295,7 +295,7 @@ die "no API key came back: none was picked, or it can't be shown again\n"
 my $keyed = InternetData->new(api_key => $token->{apikey});
 ```
 
-A denied sign-in dies with `InternetData::OauthAccessDeniedError` and a code that ran out with `InternetData::OauthExpiredTokenError`. Client IDs are issued on request from support@internetdata.io, and `$client->oauth->revoke('your-client-id', $token->{refresh_token})` signs the machine out again.
+A denied sign-in dies with `InternetData::OauthAccessDeniedError` and a code that ran out with `InternetData::OauthExpiredTokenError`. `$client->oauth->revoke('your-client-id', $token->{refresh_token})` signs the machine out again. Only a client we registered, such as our CLI, can use the device flow: an app of your own signs people in with the authorization code flow below.
 
 ### Sign in with OAuth (authorization code)
 
