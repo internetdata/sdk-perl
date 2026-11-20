@@ -79,7 +79,7 @@ print $acct->{usage}{requests};    # 4
 print $acct->{usage}{window_end};  # when the allowance resets
 ```
 
-Usage counts against the anniversary of your subscription on a paid plan, not the calendar month and not the billing period, and against the UTC day on the free plan; it is the same number a lookup is gated on. `hard_limit` is `undef` on an uncapped plan, which is not the same as zero.
+Usage counts against the anniversary of your subscription on a paid plan, not the calendar month and not the billing period; it is the same number a lookup is gated on. `hard_limit` is `undef` on an uncapped plan, which is not the same as zero.
 
 `my_ip` returns an `InternetData::Result` like `lookup` does; `my_entitlement` returns the decoded hashref. `my_ip_p` and `my_entitlement_p` are the non-blocking forms.
 
