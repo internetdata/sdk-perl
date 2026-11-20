@@ -34,7 +34,7 @@ print $result->is_anycast;           # 0
 
 ### With an API key
 
-Every paid plan answers every field: the VPN, proxy, hosting and CDN flags as well, the detail behind each flag, the city and coordinates, WHOIS and RWHOIS, and the domains hosted on the address. The plans differ only in how many lookups they include, and a free account tries every field, 100 lookups a day. Create a key in the [console](https://app.internetdata.io), then pass it in:
+Every paid plan answers every field: the VPN, proxy, hosting and CDN flags as well, the detail behind each flag, the city and coordinates, WHOIS and RWHOIS, and the domains hosted on the address. The plans differ only in how many lookups they include, and a free account tries every field. Create a key in the [console](https://app.internetdata.io), then pass it in:
 
 ```perl
 my $client = InternetData->new(api_key => $ENV{INTERNETDATA_API_KEY});
@@ -329,13 +329,13 @@ Each redirect URI must be https on a public host name, or http on a loopback add
 
 ### Absent is not false
 
-Unlimited leaves out `is_vpn`, `is_hosting`, `is_cdn` and the four proxy flags, the detail behind them, and the paid members inside `location`, `asn`, `company` and `abuse`, such as `location->{city}`; a free-plan key's answer carries `trial_expired`, true once its daily trial is spent. A paid key's carries `cap_reached`, true once its organization's overage cap is reached, when the answer has Unlimited's fields and isn't billed. A field your plan does not include is absent, which never means "we checked and found nothing". Perl makes that easy to miss, since `undef` and `0` are both false.
+Unlimited leaves out `is_vpn`, `is_hosting`, `is_cdn` and the four proxy flags, the detail behind them, and the paid members inside `location`, `asn`, `company` and `abuse`, such as `location->{city}`; a free-plan key's answer carries `trial_expired`, true once its trial is spent. A paid key's carries `cap_reached`, true once its organization's overage cap is reached, when the answer has Unlimited's fields and isn't billed. A field your plan does not include is absent, which never means "we checked and found nothing". Perl makes that easy to miss, since `undef` and `0` are both false.
 
 ```perl
 if ($result->is_hosting // 0) { ... }          # absent counts as false
 if ($result->has('is_hosting')) { ... }        # is this field in my plan? Not without a key
 if (exists $result->location->{city}) { ... }  # and a member inside an object
-if ($result->trial_expired) { ... }            # a free-plan key's daily trial is spent
+if ($result->trial_expired) { ... }            # a free-plan key's trial is spent
 if ($result->cap_reached) { ... }              # a paid key is past its overage cap
 ```
 
