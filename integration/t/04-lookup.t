@@ -109,11 +109,11 @@ subtest 'the CI key reaches the wire, and its answer keeps the keyless one' => s
         ok($served{$field}, "the keyed answer keeps $field, which Unlimited serves");
     }
     if ($result->has('trial_expired')) {
-        # A free-plan key: its organization's first 100 lookups of the UTC day are
-        # answered in full, and the rest as Unlimited's, so which half a run sees
-        # depends on the day.
+        # A free-plan key: its organization's trial is answered in full, and the
+        # rest as Unlimited's, so which half a run sees depends on how much of the
+        # trial is left.
         is($result->has('is_hosting'), $result->trial_expired ? 0 : 1,
-            'is_hosting is served exactly while the day lasts');
+            'is_hosting is served exactly while the trial lasts');
     }
     else {
         is($result->has('is_hosting'), 1, 'a paid plan serves is_hosting');
