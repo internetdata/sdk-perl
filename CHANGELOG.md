@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.16.3 - 2026-11-20
+
+### Fixes
+
+- Re-pin the spec to 2026.11.20: the trial without a count, and no per-minute limit ([`230bc5b`](https://github.com/internetdata/sdk-perl/commit/230bc5b3c51dfa445252a55d284f538ecf2c5df2))
+
 ## 1.16.2 - 2026-11-19
 
 ### Fixes
