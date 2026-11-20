@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.17.0 - 2026-11-20
+
+### Features
+
+- Read a paid domain answer's hosting, co-hosted domains, home page, redirects and backlinks ([`0cdf445`](https://github.com/internetdata/sdk-perl/commit/0cdf44564ffbdaade0aaa6ed61c762ce5f68fba0))
+
 ## 1.16.3 - 2026-11-20
 
 ### Fixes
