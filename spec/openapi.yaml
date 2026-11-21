@@ -380,9 +380,10 @@ paths:
         a profile. The `scopes` array is what the credential may do right now,
         so a client can render its own capabilities rather than discovering
         them from a 403.
+
+        Needs the `account.read` scope.
       security:
-        - BearerAuth:
-            - account.read
+        - BearerAuth: []
       responses:
         '200':
           description: The caller.
@@ -419,9 +420,10 @@ paths:
         credential belongs to exactly one, so there is no ID to pass.
 
         An identifier in the path could only ever be your own or a refusal.
+
+        Needs the `org.read` scope.
       security:
-        - BearerAuth:
-            - org.read
+        - BearerAuth: []
       responses:
         '200':
           description: The organization.
@@ -444,9 +446,10 @@ paths:
         emailed invitation in the console, not an API call.
 
         Modeling it as one here would promise something this API does not do.
+
+        Needs the `org.read` scope.
       security:
-        - BearerAuth:
-            - org.read
+        - BearerAuth: []
       responses:
         '200':
           description: The members.
@@ -475,9 +478,10 @@ paths:
         A key issued before this product stored secrets recoverably was never
         kept, so `reveal` will refuse it permanently; rotating produces one
         that can be read.
+
+        Needs the `apikeys.read` scope.
       security:
-        - BearerAuth:
-            - apikeys.read
+        - BearerAuth: []
       responses:
         '200':
           description: The organization's keys, newest first.
@@ -497,9 +501,10 @@ paths:
       description: |
         Creates an API key and returns its secret, which no list ever shows:
         keep it, or reveal it again later.
+
+        Needs the `apikeys.manage` scope.
       security:
-        - BearerAuth:
-            - apikeys.manage
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -531,9 +536,7 @@ paths:
         back in the answer, so this needs `apikeys.reveal` as well as
         `apikeys.manage`.
       security:
-        - BearerAuth:
-            - apikeys.manage
-            - apikeys.reveal
+        - BearerAuth: []
       parameters:
         - $ref: '#/components/parameters/ApikeyIdParam'
       responses:
@@ -559,9 +562,10 @@ paths:
         Stops the key working. Revocation is soft: the key stays listed with a
         `revoked_at`, because the organization still owns whatever it did while
         it was alive.
+
+        Needs the `apikeys.manage` scope.
       security:
-        - BearerAuth:
-            - apikeys.manage
+        - BearerAuth: []
       parameters:
         - $ref: '#/components/parameters/ApikeyIdParam'
       responses:
@@ -593,9 +597,10 @@ paths:
         Refused with `NOT_RETRIEVABLE` for a key issued before this product
         stored secrets recoverably - that secret was never kept, so no retry
         will ever produce it. Rotate the key instead.
+
+        Needs the `apikeys.reveal` scope.
       security:
-        - BearerAuth:
-            - apikeys.reveal
+        - BearerAuth: []
       parameters:
         - $ref: '#/components/parameters/ApikeyIdParam'
       responses:
@@ -1602,9 +1607,10 @@ paths:
             A rate limit, always with `Retry-After`: this API protecting itself, or a burst of
             Unlimited
 
-            lookups. A paid plan's overage cap is never a `429`: it answers `200` with Unlimited's
+            lookups. A paid plan's overage cap is never a `429` by itself: it answers `200` with
 
-            fields and `cap_reached` `true`.
+            Unlimited's fields and `cap_reached` `true`, and a burst past it pays Unlimited's rate
+            limit.
           content:
             application/json:
               schema:
@@ -1618,6 +1624,14 @@ paths:
                   summary: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
                   value:
                     error: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
+                e3:
+                  summary: >-
+                    rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                    the cap in Billing
+                  value:
+                    error: >-
+                      rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                      the cap in Billing
           headers:
             Retry-After:
               description: Seconds until a rate limit lets the request through.
@@ -1746,9 +1760,10 @@ paths:
             A rate limit, always with `Retry-After`: this API protecting itself, or a burst of
             Unlimited
 
-            lookups. A paid plan's overage cap is never a `429`: it answers `200` with Unlimited's
+            lookups. A paid plan's overage cap is never a `429` by itself: it answers `200` with
 
-            fields and `cap_reached` `true`.
+            Unlimited's fields and `cap_reached` `true`, and a burst past it pays Unlimited's rate
+            limit.
           content:
             application/json:
               schema:
@@ -1762,6 +1777,14 @@ paths:
                   summary: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
                   value:
                     error: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
+                e3:
+                  summary: >-
+                    rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                    the cap in Billing
+                  value:
+                    error: >-
+                      rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                      the cap in Billing
           headers:
             Retry-After:
               description: Seconds until a rate limit lets the request through.
@@ -1995,9 +2018,10 @@ paths:
             A rate limit, always with `Retry-After`: this API protecting itself, or a burst of
             Unlimited
 
-            lookups. A paid plan's overage cap is never a `429`: it answers `200` with Unlimited's
+            lookups. A paid plan's overage cap is never a `429` by itself: it answers `200` with
 
-            fields and `cap_reached` `true`.
+            Unlimited's fields and `cap_reached` `true`, and a burst past it pays Unlimited's rate
+            limit.
           content:
             application/json:
               schema:
@@ -2011,6 +2035,14 @@ paths:
                   summary: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
                   value:
                     error: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
+                e3:
+                  summary: >-
+                    rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                    the cap in Billing
+                  value:
+                    error: >-
+                      rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                      the cap in Billing
           headers:
             Retry-After:
               description: Seconds until a rate limit lets the request through.
@@ -2239,9 +2271,10 @@ paths:
             A rate limit, always with `Retry-After`: this API protecting itself, or a burst of
             Unlimited
 
-            lookups. A paid plan's overage cap is never a `429`: it answers `200` with Unlimited's
+            lookups. A paid plan's overage cap is never a `429` by itself: it answers `200` with
 
-            fields and `cap_reached` `true`.
+            Unlimited's fields and `cap_reached` `true`, and a burst past it pays Unlimited's rate
+            limit.
           content:
             application/json:
               schema:
@@ -2255,6 +2288,14 @@ paths:
                   summary: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
                   value:
                     error: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
+                e3:
+                  summary: >-
+                    rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                    the cap in Billing
+                  value:
+                    error: >-
+                      rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                      the cap in Billing
           headers:
             Retry-After:
               description: Seconds until a rate limit lets the request through.
@@ -2556,6 +2597,14 @@ paths:
                   summary: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
                   value:
                     error: rate limit for Unlimited lookups exceeded; retry shortly, or use a paid plan
+                e3:
+                  summary: >-
+                    rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                    the cap in Billing
+                  value:
+                    error: >-
+                      rate limit for lookups past your overage cap exceeded; retry shortly, or raise
+                      the cap in Billing
       security:
         - {}
         - apiKeyQuery: []
@@ -3866,6 +3915,7 @@ components:
           description: ISO 3166 country code.
         asn:
           type: integer
+          format: int64
           description: The AS the operator announces it from.
         confidence:
           type: string
@@ -4105,6 +4155,7 @@ components:
       properties:
         asn:
           type: integer
+          format: int64
           description: The AS announcing the address, 0 where none does.
         name:
           type: string
@@ -4130,6 +4181,8 @@ components:
         - domain
         - type
         - prefix
+        - country
+        - rpki_status
       description: The network announcing the address, from IP ASN.
     Company:
       type: object
@@ -4211,6 +4264,7 @@ components:
           description: The record's abuse contact.
         asn:
           type: integer
+          format: int64
           description: The AS announcing the record's start address.
       required:
         - id
@@ -4289,6 +4343,7 @@ components:
       properties:
         asn:
           type: integer
+          format: int64
           description: The AS number.
         name:
           type: string
