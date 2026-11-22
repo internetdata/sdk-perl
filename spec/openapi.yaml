@@ -13,7 +13,7 @@ info:
     email: support@internetdata.io
     url: https://internetdata.io
   termsOfService: https://internetdata.io/terms
-  version: 2026.11.20
+  version: 2026.11.21
 servers:
   - url: https://internetdata.io
 tags:
@@ -935,6 +935,17 @@ paths:
               value: 146.70.116.130
             ipv6:
               value: 2606:4700:4700::1111
+        - in: query
+          name: user_agent
+          required: false
+          schema:
+            type: string
+            maxLength: 1024
+          description: >-
+            The `User-Agent` header of the request you are deciding on. With every field, on a paid
+            plan or the trial, the answer then carries `user_agent`, the agent it names and whether
+            this address bears that out. Never kept, and nothing sent with a lookup feeds our data.
+          example: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
       responses:
         '200':
           description: What each database says about the address, as much as your plan shows.
@@ -950,6 +961,7 @@ paths:
                     is_bogon: false
                     is_tor: false
                     is_relay: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -999,6 +1011,7 @@ paths:
                     is_pubproxy: false
                     is_hosting: true
                     is_cdn: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -1045,6 +1058,7 @@ paths:
                       confidence: high
                       last_seen: '2026-11-13'
                     cdn: {}
+                    bot: {}
                     carrier: {}
                     satellite: {}
                     ssh: {}
@@ -1103,6 +1117,7 @@ paths:
                     is_bogon: false
                     is_tor: false
                     is_relay: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -1153,6 +1168,7 @@ paths:
                     is_pubproxy: false
                     is_hosting: true
                     is_cdn: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -1199,6 +1215,7 @@ paths:
                       confidence: high
                       last_seen: '2026-11-13'
                     cdn: {}
+                    bot: {}
                     carrier: {}
                     satellite: {}
                     ssh: {}
@@ -1264,6 +1281,7 @@ paths:
                     is_pubproxy: false
                     is_hosting: true
                     is_cdn: true
+                    is_bot: false
                     is_anycast: true
                     is_carrier: false
                     is_satellite: false
@@ -1310,6 +1328,7 @@ paths:
                       provider_name: Cloudflare
                       confidence: high
                       last_seen: '2026-11-13'
+                    bot: {}
                     carrier: {}
                     satellite: {}
                     ssh: {}
@@ -1403,6 +1422,131 @@ paths:
                         - medicinanet.com.br
                         - imgup.net
                     cap_reached: false
+                paidBot:
+                  summary: A paid key, looking up a verified crawler's address (Googlebot)
+                  value:
+                    ip: 66.249.66.1
+                    is_bogon: false
+                    is_vpn: false
+                    is_tor: false
+                    is_relay: false
+                    is_resproxy: false
+                    is_dcproxy: false
+                    is_mobproxy: false
+                    is_pubproxy: false
+                    is_hosting: true
+                    is_cdn: false
+                    is_bot: true
+                    is_anycast: false
+                    is_carrier: false
+                    is_satellite: false
+                    is_ssh: false
+                    is_smtp: false
+                    is_web: false
+                    is_dns_resolver: false
+                    is_bittorrent: false
+                    location:
+                      continent: NA
+                      continent_name: North America
+                      country: US
+                      country_name: United States
+                      timezone: America/Los_Angeles
+                      currency_code: USD
+                      currency_name: Dollar
+                      currency_symbol: $
+                      flag_emoji: 🇺🇸
+                      flag_unicode: U+1F1FA U+1F1F8
+                      region: California
+                      region_code: US-CA
+                      city: Mountain View
+                      postal_code: '94040'
+                      latitude: 37.38605
+                      longitude: -122.08385
+                      accuracy_radius: 2000
+                      geoname_id: '5375480'
+                      dma_code: '807'
+                      last_changed: '2026-10-02'
+                    vpn: {}
+                    tor: {}
+                    relay: {}
+                    resproxy: {}
+                    dcproxy: {}
+                    mobproxy: {}
+                    pubproxy: {}
+                    hosting:
+                      provider: google
+                      provider_name: Google
+                      confidence: high
+                      last_seen: '2026-11-20'
+                    cdn: {}
+                    bot:
+                      provider: google
+                      provider_name: Google
+                      agents:
+                        - Google-CloudVertexBot
+                        - GoogleOther
+                        - Googlebot
+                      categories:
+                        - ai_search
+                        - other
+                        - search_engine
+                      verified: true
+                      identity: verified
+                      verified_by: list
+                      confidence: high
+                      first_seen: '2026-11-21'
+                      last_seen: '2026-11-21'
+                    carrier: {}
+                    satellite: {}
+                    ssh: {}
+                    smtp: {}
+                    web: []
+                    dns_resolver: {}
+                    bittorrent: {}
+                    asn:
+                      asn: 15169
+                      name: Google LLC
+                      domain: google.com
+                      type: hosting
+                      prefix: 66.249.64.0/20
+                      country: US
+                      rpki_status: valid
+                    company:
+                      name: Google LLC
+                      domain: google.com
+                      type: hosting
+                      country: US
+                    hostname: crawl-66-249-66-1.googlebot.com
+                    abuse:
+                      email: network-abuse@google.com
+                      name: Abuse
+                      phone: +1-650-253-0000
+                      address: 1600 Amphitheatre Parkway, Mountain View, CA, 94043
+                      country: US
+                      network: 66.249.64.0-66.249.95.255
+                      validated: true
+                      unvalidated_since: ''
+                    whois:
+                      id: GOOGLE
+                      name: Google LLC
+                      org: GOGL
+                      country: ''
+                      status: allocation
+                      source: arin
+                      domain: google.com
+                      abuse_email: network-abuse@google.com
+                      asn: 15169
+                    rwhois:
+                      id: ''
+                      name: ''
+                      country: ''
+                      source: ''
+                      domain: ''
+                      abuse_email: ''
+                    hosted_domains:
+                      total: 0
+                      domains: []
+                    cap_reached: false
                 capReached:
                   summary: >-
                     A key on a paid plan past its organization's overage cap, with Unlimited's
@@ -1412,6 +1556,7 @@ paths:
                     is_bogon: false
                     is_tor: false
                     is_relay: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -1462,6 +1607,7 @@ paths:
                     is_pubproxy: false
                     is_hosting: false
                     is_cdn: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -1500,6 +1646,7 @@ paths:
                     pubproxy: {}
                     hosting: {}
                     cdn: {}
+                    bot: {}
                     carrier: {}
                     satellite: {}
                     ssh: {}
@@ -1665,6 +1812,18 @@ paths:
       description: |
         The address you are calling from, answered as `GET /{ip}` would answer it, and charged as
         that lookup is.
+      parameters:
+        - in: query
+          name: user_agent
+          required: false
+          schema:
+            type: string
+            maxLength: 1024
+          description: >-
+            The `User-Agent` header of the request you are deciding on. With every field, on a paid
+            plan or the trial, the answer then carries `user_agent`, the agent it names and whether
+            this address bears that out. Never kept, and nothing sent with a lookup feeds our data.
+          example: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
       responses:
         '200':
           description: The lookup of your own address.
@@ -1680,6 +1839,7 @@ paths:
                     is_bogon: false
                     is_tor: false
                     is_relay: false
+                    is_bot: false
                     is_anycast: false
                     is_carrier: false
                     is_satellite: false
@@ -2377,6 +2537,7 @@ paths:
                         is_pubproxy: false
                         is_hosting: true
                         is_cdn: false
+                        is_bot: false
                         is_anycast: false
                         is_carrier: false
                         is_satellite: false
@@ -2423,6 +2584,7 @@ paths:
                           confidence: high
                           last_seen: '2026-11-13'
                         cdn: {}
+                        bot: {}
                         carrier: {}
                         satellite: {}
                         ssh: {}
@@ -3668,6 +3830,12 @@ components:
         is_cdn:
           type: boolean
           description: 'In CDN IP: a content delivery network. Paid plans and the trial.'
+        is_bot:
+          type: boolean
+          description: >-
+            In Bot IP: an automated client's address, such as a search engine's or an AI company's
+            crawler, an uptime monitor, an internet scanner or a webhook sender. `bot` says whose,
+            what it does and whether its operator vouches for the address.
         is_anycast:
           type: boolean
           description: 'In Anycast IP: announced from many places at once.'
@@ -3728,6 +3896,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/ClassDetail'
           description: '`{}` when `is_cdn` is false. Paid plans and the trial.'
+        bot:
+          allOf:
+            - $ref: '#/components/schemas/BotDetail'
+          description: '`{}` when `is_bot` is false. Paid plans and the trial.'
         carrier:
           allOf:
             - $ref: '#/components/schemas/CarrierDetail'
@@ -3778,6 +3950,12 @@ components:
           $ref: '#/components/schemas/Rwhois'
         hosted_domains:
           $ref: '#/components/schemas/HostedDomains'
+        user_agent:
+          allOf:
+            - $ref: '#/components/schemas/UserAgentVerdict'
+          description: >-
+            When the request sent `user_agent`, with every field, the agent it names and whether
+            this address bears it out. Absent otherwise.
         trial_expired:
           type: boolean
           description: >-
@@ -3796,6 +3974,7 @@ components:
         - is_bogon
         - is_tor
         - is_relay
+        - is_bot
         - is_anycast
         - is_carrier
         - is_satellite
@@ -3920,6 +4099,85 @@ components:
         confidence:
           type: string
           description: '`high`, `medium` or `low`.'
+    UserAgentVerdict:
+      type: object
+      properties:
+        agent:
+          type: string
+          description: >-
+            The agent the user agent names, such as `Googlebot` or `Chrome`; `Unknown` where it
+            names none.
+        kind:
+          type: string
+          description: >-
+            `browser`, `inapp`, `automation`, `bot`, `ai-bot`, `http-client` or `unknown`: what kind
+            of client the user agent says it is.
+        verdict:
+          type: string
+          enum:
+            - verified
+            - spoofed
+            - unverifiable
+            - not_bot
+          description: >-
+            `verified`: the agent's operator vouches for this address as it. `spoofed`: the operator
+            of a bot that publishes its addresses, or whose registered space it uses, does not vouch
+            for this one, or this address posed as the bot before. `unverifiable`: a bot no
+            published list or registered space can confirm. `not_bot`: a browser, an app or a
+            script.
+      required:
+        - agent
+        - kind
+        - verdict
+    BotDetail:
+      type: object
+      properties:
+        provider:
+          type: string
+          description: The bot operator's ID in Bot Provider, empty where no operator is known.
+        provider_name:
+          type: string
+          description: The operator's name, empty where no operator is known.
+        agents:
+          type: array
+          items:
+            type: string
+          description: >-
+            The bots the address serves, as their user agents name them (`Googlebot`, `GPTBot`); for
+            an address that is not verified, the bots it claimed to be. One address can serve
+            several, and `[]` means none is named.
+        categories:
+          type: array
+          items:
+            type: string
+          description: >-
+            What those bots do: `search_engine`, `ai_training`, `ai_search`, `ai_assistant`,
+            `ai_agent`, `seo`, `ads`, `preview`, `feed`, `monitoring`, `archiver`, `scanner`,
+            `link_security`, `webhook` or `other`; `[]` where unknown.
+        verified:
+          type: boolean
+          description: Whether the operator vouches for the address, so the bots in `agents` really are its.
+        identity:
+          type: string
+          description: >-
+            `verified` (the operator vouches for the address), `declared` (it names itself a bot
+            that cannot be verified), `spoofed` (it claimed a bot whose operator vouches for other
+            addresses) or `undeclared` (it hides as a browser and behaves as automation).
+        verified_by:
+          type: string
+          description: >-
+            How a verified address verified: `list` (the operator publishes it), `rdns` (its reverse
+            DNS name ends in a suffix the operator documents and resolves back) or `owner` (the
+            operator's own space, seen claiming its bot); empty when not verified.
+        confidence:
+          type: string
+          description: '`high`, `medium` or `low`: how sure we are the address is what the row says.'
+        first_seen:
+          type: string
+          description: The first day the address was seen as such.
+        last_seen:
+          type: string
+          description: The last day it was.
     SshDetail:
       type: object
       properties:
@@ -4832,6 +5090,15 @@ components:
           items:
             type: string
           description: Domains.
+        user_agents:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 1024
+          description: >-
+            Each address's `User-Agent`, keyed by the string it is sent as in `ips`. With every
+            field, that address's answer then carries `user_agent`, as a single lookup's does. Never
+            kept.
       description: Up to 1000 items across the three arrays, each optional.
     BatchLookupResponse:
       type: object
