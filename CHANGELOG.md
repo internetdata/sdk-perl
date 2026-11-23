@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.18.1 - 2026-11-23
+
+### Fixes
+
+- Re-pin the spec to 2026.11.22: a bot's provider for an unverified address ([`d59300d`](https://github.com/internetdata/sdk-perl/commit/d59300d8add7a81a43a15d85f7d2c7e8fcf1d1a5))
+
 ## 1.18.0 - 2026-11-22
 
 ### Features
