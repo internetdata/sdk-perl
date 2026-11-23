@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 1.6.1 are described by their release commits.
 
+## 1.18.2 - 2026-11-23
+
+### Fixes
+
+- Require Mojolicious 9.48, past two advisories in its CSRF helpers ([`643431e`](https://github.com/internetdata/sdk-perl/commit/643431eedd547c1f121d7c55e9c4f73bc28940e7))
+
 ## 1.18.1 - 2026-11-23
 
 ### Fixes
