@@ -137,6 +137,27 @@ subtest 'the CI key reaches the wire, and its answer keeps the keyless one' => s
     ok(!grep({ !$_->{carried_key} } @sent), 'which carried the key');
 };
 
+subtest "Googlebot's own address and user agent is a verified bot, where the answer has every field" => sub {
+    my $reason = skip_reason();
+    plan skip_all => $reason if $reason;
+    plan skip_all => 'the installed release sends no user_agent' unless eval { InternetData->VERSION('1.20.0'); 1 };
+    my $agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+
+    my $result = eval { client(cache_size => 0)->lookup('66.249.66.1', user_agent => $agent) };
+    BAIL_OUT("looking 66.249.66.1 up with Googlebot's user agent: $@") unless $result;
+
+    is($result->is_bot, 1, 'the address is a bot');
+    if ($result->has('trial_expired') && $result->trial_expired) {
+        # Unlimited's answer never carries the verdict.
+        is($result->has('user_agent'), 0, 'an answer without every field carries no user_agent');
+        return;
+    }
+    is($result->has('user_agent'), 1, 'the answer carries user_agent');
+    my $verdict = $result->user_agent // {};
+    ok(exists $verdict->{$_}, "user_agent carries $_") for qw(agent kind verdict);
+    is($verdict->{verdict}, 'verified', 'and its operator vouches for the address');
+};
+
 # Fails every request, so anything reaching the network is loud about it rather
 # than merely slow.
 sub refusing_ua {
