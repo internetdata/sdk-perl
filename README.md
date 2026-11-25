@@ -34,7 +34,7 @@ print $result->is_anycast;           # 0
 
 ### With an API key
 
-Every paid plan answers every field: the VPN, proxy, hosting and CDN flags as well, the detail behind each flag, the city and coordinates, WHOIS and RWHOIS, and the domains hosted on the address. The plans differ only in how many lookups they include, and a free account tries every field. Create a key in the [console](https://app.internetdata.io), then pass it in:
+A paid plan answers every field: the VPN, proxy, hosting and CDN flags as well, the detail behind each flag, the city and coordinates, WHOIS and RWHOIS, and the domains hosted on the address. Its quotas differ only in how many lookups they include, and a free account tries every field. Create a key in the [console](https://app.internetdata.io), then pass it in:
 
 ```perl
 my $client = InternetData->new(api_key => $ENV{INTERNETDATA_API_KEY});
