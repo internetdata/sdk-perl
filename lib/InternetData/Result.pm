@@ -162,7 +162,7 @@ The paid flags: C<1>, C<0>, or C<undef> when your plan omits the field.
 
 The detail behind each flag, as plain hash references (C<web> an array reference
 of the web servers found), or C<undef> when your plan omits them. Unlimited
-answers C<tor> and C<relay>; every paid plan answers them all. C<bot> names whose
+answers C<tor> and C<relay>; a paid plan answers them all. C<bot> names whose
 bot uses the address (C<provider>, C<provider_name>), its bots as their user
 agents name them (C<agents>), what they do (C<categories>) and whether the
 operator vouches for the address (C<verified>, C<identity>, C<verified_by>).

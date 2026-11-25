@@ -981,7 +981,7 @@ before writing an C<if>.
 Your API key. Without one a lookup is on Unlimited, the free plan: C<ip>,
 C<is_bogon>, the Tor, relay, bot, anycast, carrier, satellite and service flags,
 C<location> to the country, C<asn>, C<company>, C<hostname> and the abuse email,
-with no daily or monthly cap. Every paid plan answers every field, and a batch
+with no daily or monthly cap. A paid plan answers every field, and a batch
 needs one. The database calls need a key carrying the C<db.download> scope, and
 keys are default-deny, so an existing key reaches them only once the scope is
 added to it. An empty or blank key is the same as none, and sends no
