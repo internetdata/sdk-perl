@@ -29,8 +29,13 @@ for my $env ([production => PROD], [staging => STAGING]) {
 
         is($result->ip, PROBE, 'the wire answered about the address asked for');
         is($result->is_bogon, 0, 'and no bogon');
-        for my $flag (qw(is_tor is_relay is_anycast is_carrier is_satellite is_ssh is_smtp is_web)) {
+        for my $flag (qw(is_tor is_relay is_anycast)) {
             like($result->$flag // 'undef', qr/\A[01]\z/, "$flag is served as 0 or 1");
+        }
+        # A paid plan's flags: served, they read 0 or 1, and Unlimited's answer may not carry them, which
+        # reads as undef and never as false.
+        for my $flag (qw(is_bot is_carrier is_satellite is_ssh is_smtp is_web is_dns_resolver is_bittorrent)) {
+            like($result->$flag // 'absent', qr/\A(?:[01]|absent)\z/, "$flag reads as 0, 1 or absent");
         }
         ok(length $result->location->{country}, 'location names the country');
         ok(length $result->company->{name}, 'company names who holds it');
@@ -146,12 +151,12 @@ subtest "Googlebot's own address and user agent is a verified bot, where the ans
     my $result = eval { client(cache_size => 0)->lookup('66.249.66.1', user_agent => $agent) };
     BAIL_OUT("looking 66.249.66.1 up with Googlebot's user agent: $@") unless $result;
 
-    is($result->is_bot, 1, 'the address is a bot');
     if ($result->has('trial_expired') && $result->trial_expired) {
-        # Unlimited's answer never carries the verdict.
+        # Unlimited's answer never carries the verdict, or is_bot.
         is($result->has('user_agent'), 0, 'an answer without every field carries no user_agent');
         return;
     }
+    is($result->is_bot, 1, 'the address is a bot');
     is($result->has('user_agent'), 1, 'the answer carries user_agent');
     my $verdict = $result->user_agent // {};
     ok(exists $verdict->{$_}, "user_agent carries $_") for qw(agent kind verdict);
