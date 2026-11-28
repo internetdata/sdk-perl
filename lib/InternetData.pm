@@ -1156,7 +1156,7 @@ without an API key gets an unauthorized error rather than a partial one.
 
 Usage counts against the allowance window - on a paid plan the anniversary of
 the subscription, not the calendar month and not the billing period, and on a
-free plan the UTC month - and it is the same number a lookup is gated on.
+free plan its trial's window - and it is the same number a lookup is gated on.
 C<hard_limit> is C<undef> when we never stop serving, which is not the same as a
 limit of zero.
 
